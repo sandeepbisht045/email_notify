@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+  <title>{% block title%}Products{% endblock %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'nav.css' %}">
+  <style>
+    /* {% block css %} {% endblock %} */
+#auth:hover{background-color: #BB383B;border-radius: 9px;border: 0px solid; padding: 4px;}
+#prod:hover{background-color:#BB383B;border-radius: 9px;border: 0px solid; padding: 4px;}
+#add:hover{background-color: #BB383B;border-radius: 9px;border: 0px solid; padding: 4px;}
+
+    #blink {
+      font-family: serif;
+      color: #008000;
+      font-weight: bolder;
+      font-family: cursive;
+      animation: animate 3s linear infinite;
+
+    }
+
+    @keyframes animate {
+      0% {
+        visibility: hidden;
+      }
+
+      50% {
+        visibility: visible;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body style="background-color: #deebdd">
+  <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark" style="background-color: #032054 !important;">
+    <div class="container-fluid">
+      <a id="prod" class="navbar-brand icon-color" href="/"><b style="color: white;">Products</b></a>
+      <a id="add" class="navbar-brand icon-color" href="/add_products"><b style="color: white;">Add Products</b></a>
+
+
+
+
+      {%if request.session.id%}
+      <a id="auth"  class="navbar-brand icon-color" href="/logout"><b style="color: white;">Logout</b></a>
+
+      {%else%}
+      <a id="auth" class="navbar-brand icon-color" href="/login"><b style="color: white;">Login</b></a>
+
+      {%endif%}
+    </div>
+    </div>
+
+  </nav>
+
+  <!-- ______________________________________________________________________________________________________________ -->
+
+
+  <div>.</div>
+  <div>.</div>
+  <div>.</div>
+
+  {%block body%}
+  {%if msg%}
+  <div class="row" id="display_alert">
+    <div class="col-md-4"></div>
+    <div class="alert alert-primary text-center col-md-4  " role="alert"
+      style="background-color: rgb(118, 101, 179); color: white;">
+      <b>{{msg}}</b>
+      <input type="hidden" id="hidden" value="{{msg}}">
+    </div>
+  </div>
+  {%endif%}
+  <br>
+  <div class="container">
+    <div class="row ml-1">
+      
+      <div class="row ">
+      {%if request.session.id%}
+      <div class="col_md-5 mb-2 text-center"><a class="btn btn-primary" href="/export">Export CSV</a></div>
+        <div class="col-md-5"><form autocomplete="off" action="/subscribe" method="get"><input required  placeholder="Enter Email for Alert" style="display: inline; border-radius: 7px; " type="email" name="email" class="m-2 "><button  style="padding: 4px; color: white; background-color: green; border-radius: 5px; border: transparent;" type="submit" ><span style="font-weight: bold;border: 1px solid green;color:white;font-size:small">Subscribe/Unsubscribe</span></form></div>
+     {%endif%}
+      <div class="col-md-4"><form autocomplete="off" action="/search" method="get"><input required  placeholder="Search Products" style="display: inline; border-radius: 10px; " type="text" name="search" class="m-2 "><input  style="padding: 4px; color: white; background-color: violet; border-radius: 10px; border: transparent;" type="submit" value="Search"></form></div></div>
+      {% for i in get_data %}
+
+      <div class="col-sm-4 ml-1">
+
+        <div class="card m-4" style="width: 18rem;background-image: linear-gradient(#A9F1DF ,#FFBBBB); border-radius: 20px;">
+
+          <img class="card-img-top" src="/media/{{i.photo}}" alt="" style="height: 25px; width: 25px ;">
+          <div class="card-body">
+            <h5 class="card-title"><b>{{i.name|title}}</b> </h5>
+            <span style="display: inline; color: blue; font-weight: bolder;">Vendor Name :</span> <span
+              class="card-text">{{ i.vendor_name|title }}</span> <br>
+            <hr>
+            <span style="display: inline; color: blue; font-weight: bolder;">Vendor Email :</span> <span
+              class="card-text">{{ i.vendor_email|truncatechars:200}}</span> <br>
+            <hr>
+            <span style="display: inline; color: blue; font-weight: bolder;">Purchased on :</span> <span
+              class="card-text">{{i.sdate}}</span>
+            <hr>
+            <span style="display: inline; color: blue; font-weight: bolder;">Expires on :</span> <span
+              class="card-text">{{i.edate}}</span>
+   
+              {%if request.session.id%}
+            <form action="/delete/{{i.id}}" method="post" id="delete" style="display: block;">
+              {%csrf_token%}
+            </form>
+            <button type="button" class="btn btn-danger m-4 " value="{{i.id}}" onclick="del()"
+            style="background-image: linear-gradient(#a80c3e)"
+            >Delete</button>
+
+            <!-- submit form for edit products -->
+            <form action="/edit/{{i.id}}" method="post" style="display:inline">
+              {%csrf_token%}
+              <input type="text" value="edit" name="type" style="display:none">
+              <input type="submit" class="btn btn-success m-4 " value="Edit"></button>
+            </form>
+            <!-- submit form for edit products ends here -->
+            {%endif%}
+          </div>
+        </div>
+      </div>
+
+      {% endfor %}
+
+    </div>
+  </div>
+
+
+  {% block js %}
+  <script>
+    var display_alert = document.getElementById("display_alert");
+    setTimeout(
+      function x() {
+        display_alert.style.display = "none";
+      }, 3000
+    )
+
+    setTimeout(function(){
+    var y=document.getElementById("hidden").value;
+    if (y!=""){
+    location.replace("/")}	},3000
+)
+
+    function del() {
+      var txt;
+      if (confirm("Are you sure you want to delete?")) {
+        document.getElementById("delete").submit();
+      }
+    }
+  </script>
+  {% endblock %}
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+
+  
+</body>
+{%endblock%}
+
+</html>

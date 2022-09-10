@@ -1,0 +1,41 @@
+{% extends "index.html" %}
+{% block title%}Login{% endblock %}
+{%block body%}
+<div class="container" style="border-radius: 20px;padding-bottom: 90px;padding-top: 10px; margin-top: 10px;background-image: linear-gradient(#e2a453 ,#e00f6a);">
+    <div class="row">
+        <div class="col-md-4">
+        </div>
+        <div class="col-md-4">
+            <form method="post" action="/login" autocomplete="off">
+                {%csrf_token%}
+                <div class="form-group">
+                  <label for="exampleInputEmail1"><b>Email address</b></label>
+                  <input  value="{{email}}" required type="email" class="form-control mb-4" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" name="email">
+                   </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1"><b>Password</b></label>
+                  <input required  type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" name="password">
+                </div>
+              
+                <button type="submit" class="btn btn-primary mt-4 mb-2"><b>Login</b></button>
+              </form>
+              {%if alert%}
+  <div class="row"id="login_alert"><div class="col-md-4" ></div>
+  <div class="alert alert-primary text-center col-md-4  " role="alert" style="background-color: rgb(118, 101, 179); color: white;">
+    <b>{{alert}}</b>
+  </div>
+</div>
+{%endif%}
+        </div>
+    </div>
+</div>
+
+<script>
+  var login_alert=document.getElementById("login_alert");
+  setTimeout(
+    function x(){
+login_alert.style.display="none";
+    },3000
+  )
+</script>
+{%endblock%}
