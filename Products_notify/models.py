@@ -9,6 +9,8 @@ class Products(models.Model):
     expires_in=models.CharField(default="",max_length=20)
     vendor_email=models.EmailField(default="",max_length=50)
     vendor_name=models.CharField(max_length=50)
+    payment_mode=models.CharField(max_length=50,default="")
+
 
     def __str__(self):
         return self.name

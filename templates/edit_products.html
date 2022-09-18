@@ -36,6 +36,25 @@
                     <input type="date" class="form-control" id="expiry_date"  name="expiry_date" required value="{{get_data.edate|date:"Y-m-d"}}">
                   </div>
 
+                  <div class="form-group ml-4 mt-4">
+                    <label for="exampleInputPassword1"> <b>Payment Mode</b></label>
+                    <select required name="payment_mode" id="exampleInputPassword1">
+                      {% if get_data.payment_mode == c%}
+                      <option selected value="Credit Card">Credit Card</option>
+                      <option value="Agreement">Agreement</option>
+                      <option value="Purchase Order">Purchase Order</option>
+                      {% elif get_data.payment_mode == a%}
+                      <option selected value="Agreement">Agreement</option>
+                      <option value="Credit Card">Credit Card</option>
+                      <option value="Purchase Order">Purchase Order</option>
+                      {% elif get_data.payment_mode == p%}
+                      <option value="Agreement">Agreement</option>
+                      <option value="Credit Card">Credit Card</option>
+                      <option selected value="Purchase Order">Purchase Order</option>
+                      {% endif %}
+                    </select>
+                  </div>
+
                   <input type="hidden" value="update" name="type" style="display:none">
                 <button type="submit" class="btn btn-primary mt-4 mb-2"><b>Update Product</b></button>
               </form>

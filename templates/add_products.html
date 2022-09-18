@@ -29,11 +29,21 @@
                        </div>
                 <div class="form-group">
                   <label for="exampleInputPassword1"><b>License Date</b> </label>
-                  <input type="date" class="form-control mb-4" id="license_date"  name="license_date" required value="{{sdate}}">
+                  <input type="date" class="form-control mb-4" id="license_date"  name="license_date" required value="{{sdate|date:"Y-m-d"}}">
                 </div>
                 <div class="form-group">
                     <label for="exampleInputPassword1"> <b>Expiry Date</b></label>
-                    <input type="date" class="form-control" id="expiry_date"  name="expiry_date" required>
+                    <input type="date" class="form-control" id="expiry_date"  name="expiry_date" required value="{{edate|date:"Y-m-d"}}">
+                  </div>
+
+                  <div class="form-group mt-4">
+                    <label for="exampleInputPassword1"> <b>Payment Mode</b></label>
+                    <select required name="payment_mode" id="exampleInputPassword1">
+                      <option disabled selected value="">Select</option>
+                      <option value="Credit Card">Credit Card</option>
+                      <option value="Agreement">Agreement</option>
+                      <option value="Purchase Order">Purchase Order</option>
+                    </select>
                   </div>
               
                 <button type="submit" class="btn btn-primary mt-4 mb-2"><b>Add Product</b></button>

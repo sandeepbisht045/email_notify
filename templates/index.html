@@ -24,11 +24,12 @@
       color: #008000;
       font-weight: bolder;
       font-family: cursive;
-      animation: animate 3s linear infinite;
+      animation: animate 6s linear infinite;
 
     }
 
-    @keyframes animate {
+    #blink_badge{animation: animate_badge 3s linear infinite}
+    @keyframes animate{
       0% {
         visibility: hidden;
       }
@@ -39,6 +40,20 @@
 
       100% {
         opacity: 0;
+      }
+    }
+
+    @keyframes animate_badge{
+      0% {
+        visibility: visible;
+      }
+
+      50% {
+        opacity:0;
+      }
+
+      100% {
+        visibility:visible;
       }
     }
   </style>
@@ -76,8 +91,8 @@
   {%if msg%}
   <div class="row" id="display_alert">
     <div class="col-md-4"></div>
-    <div class="alert alert-primary text-center col-md-4  " role="alert"
-      style="background-color: rgb(118, 101, 179); color: white;">
+    <div id=show_msg data-alert="{{param}}" class="alert alert-primary text-center col-md-4  " role="alert"
+      style="background-color: rgb(118, 101, 179); color: white; display: none;">
       <b>{{msg}}</b>
       <input type="hidden" id="hidden" value="{{msg}}">
     </div>
@@ -98,7 +113,20 @@
       <div class="col-sm-4 ml-1">
 
         <div class="card m-4" style="width: 18rem;background-image: linear-gradient(#A9F1DF ,#FFBBBB); border-radius: 20px;">
+       {%if i.expires_in > 0 %}
+         <span id="blink_badge"  class="badge badge-light"><b  style="background-image: linear-gradient(#b91372 ,#ca1a1a);border-radius: 10px;padding:2px">
+          {{i.expires_in}} days left</b></span>
+          
+          {%elif i.expires_in < 0 %}
+          <span id="blink_badge"  class="badge badge-light"><b  style="background-image: linear-gradient(#b91372 ,#ca1a1a);border-radius: 10px;padding:2px">
+           Expired</b></span>
+          
+           {%elif i.expires_in == 0 %}
+          <span id="blink_badge"  class="badge badge-light"><b  style="background-image: linear-gradient(#b91372 ,#ca1a1a);border-radius: 10px;padding:2px">
+           Expiring Today</b></span>
 
+          {%endif%}
+        
           <img class="card-img-top" src="/media/{{i.photo}}" alt="" style="height: 25px; width: 25px ;">
           <div class="card-body">
             <h5 class="card-title"><b>{{i.name|title}}</b> </h5>
@@ -113,12 +141,13 @@
             <hr>
             <span style="display: inline; color: blue; font-weight: bolder;">Expires on :</span> <span
               class="card-text">{{i.edate}}</span>
-   
+            <hr>
+            <span style="display: inline; color: blue; font-weight: bolder;">Payment Mode :</span> <span
+              class="card-text">{{i.payment_mode}}</span>
+  
               {%if request.session.id%}
-            <form action="/delete/{{i.id}}" method="post" id="delete" style="display: block;">
-              {%csrf_token%}
-            </form>
-            <button type="button" class="btn btn-danger m-4 " value="{{i.id}}" onclick="del()"
+            
+            <button  type="button" class="btn btn-danger m-4 " value="{{i.id}}" onclick="del(this)"
             style="background-image: linear-gradient(#a80c3e)"
             >Delete</button>
 
@@ -148,17 +177,36 @@
         display_alert.style.display = "none";
       }, 3000
     )
-
-    setTimeout(function(){
+      
     var y=document.getElementById("hidden").value;
-    if (y!=""){
-    location.replace("/")}	},3000
-)
+    var z=document.getElementById("show_msg").getAttribute("data-alert") ;
+    
+    if(y!="" && z==""){
+      if (y=="Product has been added successfully"){y="added" }
+      else if(y=="Product has been updated successfully"){y="updated"}
+      else if(y=="You have unsubscribed & won't get any alert regarding products expiry in future"){y="unsubscribe"}
+      else if(y=="You have subscribed successfully for email alert"){y="subscribe"}
+      else if(y=="Product is not available"){y="not_available"}
+        
+        var url="/?res="+y
+        location.replace(url)
+   }
 
-    function del() {
+   if (z=="param"){
+    document.getElementById("show_msg").style.display="block";
+    setTimeout(function(){
+    document.getElementById("show_msg").style.display="none";
+      
+     	},3000
+  )
+   }
+// delete function to send id to server
+    function del(arg) {
       var txt;
       if (confirm("Are you sure you want to delete?")) {
-        document.getElementById("delete").submit();
+        var url="/delete/"+arg.value
+        location.replace(url)
+        // document.getElementById("delete").submit();
       }
     }
   </script>
