@@ -88,6 +88,7 @@
   <div>.</div>
 
   {%block body%}
+  <h6>{{msg}}</h6>
   {%if msg%}
   <div class="row" id="display_alert">
     <div class="col-md-4"></div>
@@ -108,6 +109,18 @@
         <div class="col-md-5"><form autocomplete="off" action="/subscribe" method="get"><input required  placeholder="Enter Email for Alert" style="display: inline; border-radius: 7px; " type="email" name="email" class="m-2 "><button  style="padding: 4px; color: white; background-color: green; border-radius: 5px; border: transparent;" type="submit" ><span style="font-weight: bold;border: 1px solid green;color:white;font-size:small">Subscribe/Unsubscribe</span></form></div>
      {%endif%}
       <div class="col-md-4"><form autocomplete="off" action="/search" method="get"><input required  placeholder="Search Products" style="display: inline; border-radius: 10px; " type="text" name="search" class="m-2 "><input  style="padding: 4px; color: white; background-color: violet; border-radius: 10px; border: transparent;" type="submit" value="Search"></form></div></div>
+     
+      <div class="form-group mt-3 text-center">
+        <label for="exampleInputPassword1"> <b>Filter</b></label>
+        <select  onclick="f(this)" required name="payment_mode" id="exampleInputPassword1">
+          <option disabled selected value="">Filter By</option>
+          <option value="latest">Added Latest</option>
+          <option value="earliest">Added Earliest</option>
+          <option value="expired">Expired</option>
+          <option value="active">Active</option>
+        </select>
+      </div>
+
       {% for i in get_data %}
 
       <div class="col-sm-4 ml-1">
@@ -208,6 +221,15 @@
         location.replace(url)
         // document.getElementById("delete").submit();
       }
+    }
+
+    // function for sending filter option value to server
+    function f(e){
+      if(e.value=="latest"){location.replace("/?filter="+e.value)}
+      else if(e.value=="earliest"){location.replace("/?filter="+e.value)}
+      else if(e.value=="expired"){location.replace("/?filter="+e.value)}
+      else if(e.value=="active"){location.replace("/?filter="+e.value)}
+      
     }
   </script>
   {% endblock %}

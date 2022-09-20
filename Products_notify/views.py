@@ -47,7 +47,19 @@ def mail_send(request):
 def index(request):
     msg,pr_="",""
     get_data = Products.objects.all()
+    
     param_=request.GET.get("res")
+    filter_=request.GET.get("filter")
+    if filter_:
+        if filter_=="latest":
+            get_data = Products.objects.all().order_by('-id')
+        elif filter_=="earliest":
+            get_data = Products.objects.all()
+        elif filter_=="expired":
+            get_data = Products.objects.filter(expires_in__lt=0)
+        elif filter_=="active":
+            get_data = Products.objects.filter(expires_in__gte=0)
+        
     if param_:
         pr_="param"
         if param_=="updated":
