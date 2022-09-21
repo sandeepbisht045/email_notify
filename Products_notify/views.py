@@ -84,13 +84,7 @@ def index(request,param=None):
             # if difference <= 30 and difference > 0:
             i.expires_in=difference
             i.save()       
-            # elif difference<0:
-            #     i.expires_in=difference
-            #     i.save()
-            # elif difference==0:
-            #     i.expires_in=0
-            #     i.save()
-                                     
+           
     return render(request, "index.html", {"get_data": get_data,"msg":msg,"param":pr_})
 
 
@@ -100,11 +94,9 @@ def login(request):
             email = request.POST.get("email")
             password = request.POST.get("password")
             
-
-            filter_data = User.objects.filter(email=email, password=password)
-            if filter_data.exists():
-                for i in filter_data:
-                    request.session["id"] = i.id
+            filter_data = User.objects.filter(email=email, password=password).first()
+            if filter_data:
+                request.session["id"] = filter_data.id
 
                 return redirect("/")
             else:
@@ -116,7 +108,7 @@ def login(request):
 def logout(request):
     if request.session.get("id"):
         request.session.clear()
-        return redirect("/")
+        return redirect("/login")
 
 
 def add_products(request):
@@ -175,12 +167,8 @@ def search(request):
         if query:
             for i in query:
                 difference = (i.edate-cur_date).days
-                if difference <= 30 and difference > 0:
-                    i.expires_in=difference
-                    i.save()       
-                elif difference<=0:
-                    i.expires_in=0
-                    i.save()
+                i.expires_in=difference
+                i.save()       
             return render(request,"index.html",{"get_data":query})
         else:
              return redirect("/")
@@ -196,10 +184,8 @@ def subscribe(request):
         
         subs=Subscribe.objects.filter(email=email).first()
         if subs:
-            # for i in subs:
             status=subs.status
             if status==1:
-                # subs.update(status=0)
                 subs.status=0
                 subs.save()
                 return render(request, "index.html", {"msg": "You have unsubscribed & won't get any alert regarding products expiry in future", "get_data": Products.objects.all()})
@@ -224,13 +210,22 @@ def export(request):
         prods=Products.objects.all()
         if not prods:
             return redirect("/")     
+        for i in prods:
+            difference = (i.edate-cur_date).days
+            i.expires_in=difference
+            i.save()   
         response=HttpResponse(content_type="text/csv")
         writer=csv.writer(response)
         writer.writerow(["Product Name","License Date","Expiry Date","Vendor Email","Vendor Name","Payment Mode","Status"])
         obj=Products.objects.all().values_list("name","sdate","edate","vendor_email","vendor_name","payment_mode","expires_in")
         for prod in obj:
             prod=list(prod)
-            if prod[len(prod)-1]==0:
+            sdate=prod[len(prod)-6]
+            edate=prod[len(prod)-5]
+            
+            prod[len(prod)-6]=f"{sdate.day}-{sdate.month}-{sdate.year}"
+            prod[len(prod)-5]=f"{edate.day}-{edate.month}-{edate.year}"
+            if int(prod[len(prod)-1])<0:
                 prod[len(prod)-1]="Expired"
             else:
                 prod[len(prod)-1]="Active"
@@ -248,7 +243,6 @@ def edit_products(request,id):
         
         try:
             obj=Products.objects.get(pk=id)
-            print("obj",id)
         except:
             return render(request, "index.html", {"msg": "Product is not available", "get_data": Products.objects.all()})
 
@@ -265,12 +259,14 @@ def edit_products(request,id):
             expiry_date = request.POST.get("expiry_date")
             payment_mode=request.POST.get("payment_mode")
         
-            license_lst = license_date.split("-")
-            expiry_lst = expiry_date.split("-")
-            sdate = datetime.date(int(license_lst[0]), int(
-            license_lst[1]), int(license_lst[2]))
-            edate = datetime.date(int(expiry_lst[0]), int(
-            expiry_lst[1]), int(expiry_lst[2]))
+            sdate=datetime.datetime.strptime(license_date,'%Y-%m-%d').date()
+            edate=datetime.datetime.strptime(expiry_date,'%Y-%m-%d').date()
+            # license_lst = license_date.split("-")
+            # expiry_lst = expiry_date.split("-")
+            # sdate = datetime.date(int(license_lst[0]), int(
+            # license_lst[1]), int(license_lst[2]))
+            # edate = datetime.date(int(expiry_lst[0]), int(
+            # expiry_lst[1]), int(expiry_lst[2]))
         
         if (sdate-cur_date).days > 0:
                 return render(request, "edit_products.html", {"alert": "Product purchased date cannot be greater than current date","get_data": obj,"c":"Credit Card"
@@ -302,7 +298,6 @@ def import_file(request):
             # name, extension = os.path.splitext(uploaded_file_url)
             
             excel_file = uploaded_file_url
-            # print(excel_file,"jjj")
             file_data = pd.read_csv("."+excel_file,encoding='utf-8')
            
             dbframe = file_data
@@ -312,11 +307,8 @@ def import_file(request):
                 expiry_date=datetime.datetime.strptime(dbframe.Expiry, '%d-%m-%Y').date()
                 
                 if license_date and expiry_date:
-                    print("date h")
                     if (license_date-cur_date).days > 0 or (expiry_date-license_date).days < 0 or (dbframe.Payment not in payment_type):
-                        print("continue")
                         continue
-                    print("bahr")
                     new_obj=Products.objects.create(name=dbframe.ProductName,sdate=license_date,edate=expiry_date
                     ,vendor_email=dbframe.VendorEmail,vendor_name=dbframe.VendorName,payment_mode=dbframe.Payment)
                     new_obj.save()
