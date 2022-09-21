@@ -28,6 +28,33 @@
 
     }
 
+    #sample {
+      font-family: serif;
+      /* border: 2px solid rgb(219, 99, 99); */
+      background-color: rgb(231, 216, 214);
+      border-radius: 8px;color: #002280;font-weight: bold;font-family: cursive;
+      font-size: larger;text-decoration: none;
+      animation: sample_animate 6s linear infinite;
+      padding: 2px
+    }
+
+    @keyframes sample_animate{
+      0% {
+        color: #032054;
+      }
+      25% {
+        color: #150354;
+      }
+
+      50% {
+        color: rgb(224, 65, 92)
+      }
+
+      100% {
+        color: orange;
+      }
+    }
+
     #blink_badge{animation: animate_badge 3s linear infinite}
     @keyframes animate{
       0% {
@@ -60,6 +87,73 @@
 </head>
 
 <body style="background-color: #deebdd">
+    <!-- Button trigger modal -->
+<button id={{show_modal}} type="button" style="display:none" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  click</button>
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">CSV File Format must be like this</h5>
+          <button id="close" onclick="redirect()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">ProductName</th>
+                    <th scope="col">VendorName</th>
+                    <th scope="col">VendorEmail</th>
+                    <th scope="col">License</th>
+                    <th scope="col">Expiry</th>
+                    <th scope="col">Payment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Product1</td>
+                    <td>Vendor1</td>
+                    <td>vendor1@gmail.com</td>
+                    <td>20-09-2022</td>
+                    <td>28-09-2022</td>
+                    <td>Credit Card</td>
+                  </tr>
+
+                  <tr>
+                    <td>Product2</td>
+                    <td>Vendor2</td>
+                    <td>vendor2@gmail.com</td>
+                    <td>21-09-2022</td>
+                    <td>29-10-2022</td>
+                    <td>Purchase Order</td>
+                  </tr> 
+                   <tr>
+                    <td>Product3</td>
+                    <td>Vendor3</td>
+                    <td>vendor3@gmail.com</td>
+                    <td>11-09-2022</td>
+                    <td>28-11-2022</td>
+                    <td>Agreement</td>
+                  </tr>
+                  <tr>
+                    <td>Product4</td>
+                    <td>Vendor4</td>
+                    <td>vendor4@gmail.com</td>
+                    <td>01-09-2022</td>
+                    <td>28-09-2022</td>
+                    <td>Agreement</td>
+                  </tr>
+                                 </tbody>
+              </table>
+        </div>
+        <div class="modal-footer">
+         
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal ends -->
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark" style="background-color: #032054 !important;">
     <div class="container-fluid">
       <a id="prod" class="navbar-brand icon-color" href="/"><b style="color: white;">Products</b></a>
@@ -88,7 +182,6 @@
   <div>.</div>
 
   {%block body%}
-  <h6>{{msg}}</h6>
   {%if msg%}
   <div class="row" id="display_alert">
     <div class="col-md-4"></div>
@@ -106,6 +199,13 @@
       <div class="row ">
       {%if request.session.id%}
       <div class="col_md-5 mb-2 text-center"><a class="btn btn-primary" href="/export">Export CSV</a></div>
+      <form action="/import" method="post" enctype="multipart/form-data" class="text-center m-4">
+        {%csrf_token%}
+        <input required id="import_csv" type="file" onchange="return fileValidation()" name="import" style="display: none; ">
+        <label class="m-2" for="import_csv" style="border: 2px solid black">Choose File</label>
+        <button type="submit" class="btn btn-success" >Upload</button>
+        <a  href="/sample/format" id="sample" class="text-center m-2">Click for Sample File</a>
+      </form>  
         <div class="col-md-5"><form autocomplete="off" action="/subscribe" method="get"><input required  placeholder="Enter Email for Alert" style="display: inline; border-radius: 7px; " type="email" name="email" class="m-2 "><button  style="padding: 4px; color: white; background-color: green; border-radius: 5px; border: transparent;" type="submit" ><span style="font-weight: bold;border: 1px solid green;color:white;font-size:small">Subscribe/Unsubscribe</span></form></div>
      {%endif%}
       <div class="col-md-4"><form autocomplete="off" action="/search" method="get"><input required  placeholder="Search Products" style="display: inline; border-radius: 10px; " type="text" name="search" class="m-2 "><input  style="padding: 4px; color: white; background-color: violet; border-radius: 10px; border: transparent;" type="submit" value="Search"></form></div></div>
@@ -184,6 +284,7 @@
 
   {% block js %}
   <script>
+    setTimeout(function f(){document.getElementById("modal").click()},2)
     var display_alert = document.getElementById("display_alert");
     setTimeout(
       function x() {
@@ -231,6 +332,23 @@
       else if(e.value=="active"){location.replace("/?filter="+e.value)}
       
     }
+
+    function fileValidation() {
+            var fileInput =
+                document.getElementById('import_csv');
+             
+            var filePath = fileInput.value;
+         
+            // Allowing file type
+            var allowedExtensions =/(\.csv)$/i;
+            // var allowedExtensions =/(\.csv|\.xls|\.xlsx)$/i;
+            if (!allowedExtensions.exec(filePath)) {
+                alert('Accepts only .csv file type');
+                fileInput.value = '';
+                return false;
+            }
+        }
+    
   </script>
   {% endblock %}
 

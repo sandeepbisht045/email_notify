@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title></title>
+</head>
+<body>
+    <!-- Button trigger modal -->
+<button id={{show_modal}} type="button" style="display:none" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  click</button>
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">CSV File Format must be like this</h5>
+          <button id="close" onclick="redirect()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">ProductName</th>
+                    <th scope="col">VendorName</th>
+                    <th scope="col">VendorEmail</th>
+                    <th scope="col">License</th>
+                    <th scope="col">Expiry</th>
+                    <th scope="col">Payment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Product1</td>
+                    <td>Vendor1</td>
+                    <td>vendor1@gmail.com</td>
+                    <td>20-09-2022</td>
+                    <td>28-09-2022</td>
+                    <td>Credit Card</td>
+                  </tr>
+
+                  <tr>
+                    <td>Product2</td>
+                    <td>Vendor2</td>
+                    <td>vendor2@gmail.com</td>
+                    <td>21-09-2022</td>
+                    <td>29-10-2022</td>
+                    <td>Purchase Order</td>
+                  </tr> 
+                   <tr>
+                    <td>Product3</td>
+                    <td>Vendor3</td>
+                    <td>vendor3@gmail.com</td>
+                    <td>11-09-2022</td>
+                    <td>28-11-2022</td>
+                    <td>Agreement</td>
+                  </tr>
+                  <tr>
+                    <td>Product4</td>
+                    <td>Vendor4</td>
+                    <td>vendor4@gmail.com</td>
+                    <td>01-09-2022</td>
+                    <td>28-09-2022</td>
+                    <td>Agreement</td>
+                  </tr>
+                                 </tbody>
+              </table>
+        </div>
+        <div class="modal-footer">
+         
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal ends -->
+    <script>
+// var ignoreClickOnMeElement = document.getElementById('exampleModal');
+// var ignoreButtonOnMeElement = document.getElementById('modal');
+
+// document.addEventListener('click', function(event) {
+//     var isClickInsideElement = ignoreClickOnMeElement.contains(event.target);
+//     var isClickButtonElement = ignoreButtonOnMeElement.contains(event.target);
+//     if (!isClickInsideElement && isClickButtonElement) {
+//         //Do something click is outside specified element
+//         location.replace("/")
+//     }
+// });
+function redirect(){location.replace("/")}
+
+setTimeout(function f(){document.getElementById("modal").click()},2)
+    </script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script> -->
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+     integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+     crossorigin="anonymous"></script>
+</body>
+</html>

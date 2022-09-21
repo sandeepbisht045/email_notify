@@ -1,15 +1,19 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Products, User,Subscribe
-import datetime,csv
+import datetime,csv,os
 from django.core.mail import send_mail
+import pandas as pd
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 # Create your views here.
 
-x = datetime.datetime.now()
-day = x.strftime("%d")
-month = x.strftime("%m")
-year = x.strftime("%Y")
-cur_date = datetime.date(int(year), int(month), int(day))
+cur_time = datetime.datetime.now()
+# day = x.strftime("%d")
+# month = x.strftime("%m")
+# year = x.strftime("%Y")
+# cur_date = datetime.date(int(year), int(month), int(day))
+cur_date=cur_time.date()
 
 def mail_send(request):
     prod_lst = []
@@ -44,10 +48,12 @@ def mail_send(request):
         return HttpResponse("Products are not available in the db")
 
 
-def index(request):
+def index(request,param=None):
     msg,pr_="",""
     get_data = Products.objects.all()
-    
+    if param!=None:
+        return render(request,"index.html",{"show_modal":"modal","get_data":get_data})
+
     param_=request.GET.get("res")
     filter_=request.GET.get("filter")
     if filter_:
@@ -75,15 +81,15 @@ def index(request):
     if get_data:
         for i in get_data:
             difference = (i.edate-cur_date).days
-            if difference <= 30 and difference > 0:
-                i.expires_in=difference
-                i.save()       
-            elif difference<0:
-                i.expires_in=difference
-                i.save()
-            elif difference==0:
-                i.expires_in=0
-                i.save()
+            # if difference <= 30 and difference > 0:
+            i.expires_in=difference
+            i.save()       
+            # elif difference<0:
+            #     i.expires_in=difference
+            #     i.save()
+            # elif difference==0:
+            #     i.expires_in=0
+            #     i.save()
                                      
     return render(request, "index.html", {"get_data": get_data,"msg":msg,"param":pr_})
 
@@ -122,13 +128,14 @@ def add_products(request):
             expiry_date = request.POST.get("expiry_date")
             payment_mode=request.POST.get("payment_mode")
             
-        
-            license_lst = license_date.split("-")
-            expiry_lst = expiry_date.split("-")
-            sdate = datetime.date(int(license_lst[0]), int(
-                license_lst[1]), int(license_lst[2]))
-            edate = datetime.date(int(expiry_lst[0]), int(
-                expiry_lst[1]), int(expiry_lst[2]))
+            sdate=datetime.datetime.strptime(license_date,'%Y-%m-%d').date()
+            edate=datetime.datetime.strptime(expiry_date,'%Y-%m-%d').date()
+            # license_lst = license_date.split("-")
+            # expiry_lst = expiry_date.split("-")
+            # sdate = datetime.date(int(license_lst[0]), int(
+            #     license_lst[1]), int(license_lst[2]))
+            # edate = datetime.date(int(expiry_lst[0]), int(
+            #     expiry_lst[1]), int(expiry_lst[2]))
            
             if(sdate-cur_date).days > 0:
                 return render(request, "add_products.html", {"alert": "Product purchased date cannot be greater than current date", "product": product, "vendor_name": vendor_name, "vendor_email": vendor_email,"sdate":sdate,"edate":edate})
@@ -187,16 +194,20 @@ def subscribe(request):
     if request.session.get("id"):
         email = request.GET.get("email")
         
-        subs=Subscribe.objects.filter(email=email)
+        subs=Subscribe.objects.filter(email=email).first()
         if subs:
-            for i in subs:
-                status=i.status
+            # for i in subs:
+            status=subs.status
             if status==1:
-                subs.update(status=0)
+                # subs.update(status=0)
+                subs.status=0
+                subs.save()
                 return render(request, "index.html", {"msg": "You have unsubscribed & won't get any alert regarding products expiry in future", "get_data": Products.objects.all()})
 
             else:
-                subs.update(status=1)
+                # subs.update(status=1)
+                subs.status=1
+                subs.save()
                 return render(request, "index.html", {"msg": "You have subscribed successfully for email alert", "get_data": Products.objects.all()})
     
         else:
@@ -278,4 +289,40 @@ def edit_products(request,id):
         return render(request, "login.html", {"alert": "Login first to update products"})
 
     return render(request, "edit_products.html")
+
+
+def import_file(request):
+    try:
+        if request.method == 'POST' and request.FILES['import']:
+          
+            imported_file = request.FILES['import']        
+            fs = FileSystemStorage()
+            csv_file = fs.save(imported_file.name, imported_file)
+            uploaded_file_url = fs.url(csv_file)
+            # name, extension = os.path.splitext(uploaded_file_url)
+            
+            excel_file = uploaded_file_url
+            # print(excel_file,"jjj")
+            file_data = pd.read_csv("."+excel_file,encoding='utf-8')
+           
+            dbframe = file_data
+            payment_type=('Credit Card',"Agreement","Purchase Order")
+            for dbframe in dbframe.itertuples():
+                license_date=datetime.datetime.strptime(dbframe.License, '%d-%m-%Y').date()
+                expiry_date=datetime.datetime.strptime(dbframe.Expiry, '%d-%m-%Y').date()
+                
+                if license_date and expiry_date:
+                    print("date h")
+                    if (license_date-cur_date).days > 0 or (expiry_date-license_date).days < 0 or (dbframe.Payment not in payment_type):
+                        print("continue")
+                        continue
+                    print("bahr")
+                    new_obj=Products.objects.create(name=dbframe.ProductName,sdate=license_date,edate=expiry_date
+                    ,vendor_email=dbframe.VendorEmail,vendor_name=dbframe.VendorName,payment_mode=dbframe.Payment)
+                    new_obj.save()
+                
+            return redirect("/")
+        return redirect("/")
+    except:
+        return redirect("/")
 

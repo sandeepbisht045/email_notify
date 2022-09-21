@@ -12,6 +12,8 @@ urlpatterns = [
     path("search",views.search,name="search"),
     path("subscribe",views.subscribe,name="subscribe"),
     path("export",views.export,name="export"),
+    path("sample/<str:param>",views.index,name="sample"),
+    path("import",views.import_file,name="import"),
     path("edit/<int:id>",views.edit_products,name="edit_products"),
 
 
