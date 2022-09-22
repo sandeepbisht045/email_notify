@@ -6,13 +6,10 @@ from django.core.mail import send_mail
 import pandas as pd
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from Ajay_Portal.settings import BASE_DIR
 # Create your views here.
 
 cur_time = datetime.datetime.now()
-# day = x.strftime("%d")
-# month = x.strftime("%m")
-# year = x.strftime("%Y")
-# cur_date = datetime.date(int(year), int(month), int(day))
 cur_date=cur_time.date()
 
 def mail_send(request):
@@ -261,13 +258,7 @@ def edit_products(request,id):
         
             sdate=datetime.datetime.strptime(license_date,'%Y-%m-%d').date()
             edate=datetime.datetime.strptime(expiry_date,'%Y-%m-%d').date()
-            # license_lst = license_date.split("-")
-            # expiry_lst = expiry_date.split("-")
-            # sdate = datetime.date(int(license_lst[0]), int(
-            # license_lst[1]), int(license_lst[2]))
-            # edate = datetime.date(int(expiry_lst[0]), int(
-            # expiry_lst[1]), int(expiry_lst[2]))
-        
+                 
         if (sdate-cur_date).days > 0:
                 return render(request, "edit_products.html", {"alert": "Product purchased date cannot be greater than current date","get_data": obj,"c":"Credit Card"
             ,"p":"Purchase Order","a":"Agreement"})
@@ -298,9 +289,11 @@ def import_file(request):
             # name, extension = os.path.splitext(uploaded_file_url)
             
             excel_file = uploaded_file_url
+            print(excel_file)
             file_data = pd.read_csv("."+excel_file,encoding='utf-8')
            
             dbframe = file_data
+            os.remove(f"{BASE_DIR}/{uploaded_file_url}")
             payment_type=('Credit Card',"Agreement","Purchase Order")
             for dbframe in dbframe.itertuples():
                 license_date=datetime.datetime.strptime(dbframe.License, '%d-%m-%Y').date()
