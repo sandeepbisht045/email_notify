@@ -37,8 +37,8 @@
                   </div>
 
                   <div class="form-group ml-4 mt-4">
-                    <label for="exampleInputPassword1"> <b>Payment Mode</b></label>
-                    <select required name="payment_mode" id="exampleInputPassword1">
+                    <label style="display: block;" for="exampleInputPassword1"> <b>Payment Mode</b></label>
+                    <select style="width: 100%;height:37px" required name="payment_mode" id="exampleInputPassword1">
                       {% if get_data.payment_mode == c%}
                       <option selected value="Credit Card">Credit Card</option>
                       <option value="Agreement">Agreement</option>
