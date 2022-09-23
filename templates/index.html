@@ -72,15 +72,19 @@
 
     @keyframes animate_badge{
       0% {
-        visibility: visible;
+        color: white;
+      }
+
+      25% {
+        color: rgb(250, 166, 9);
       }
 
       50% {
-        opacity:0;
+        color: rgb(135, 221, 149);
       }
 
       100% {
-        visibility:visible;
+        color: white;
       }
     }
   </style>
@@ -92,7 +96,7 @@
   click</button>
   <!-- Modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">CSV File Format must be like this</h5>
@@ -223,11 +227,12 @@
 
       {% for i in get_data %}
 
+      <!-- <div class="col-sm-4 ml-1"> -->
       <div class="col-sm-4 ml-1">
 
-        <div class="card m-4" style="width: 18rem;background-image: linear-gradient(#A9F1DF ,#FFBBBB); border-radius: 20px;">
+        <div class="card m-4" style="width: 20rem;background-image: linear-gradient(#A9F1DF ,#FFBBBB); border-radius: 20px;">
        {%if i.expires_in > 0 %}
-         <span id="blink_badge"  class="badge badge-light"><b  style="background-image: linear-gradient(#b91372 ,#ca1a1a);border-radius: 10px;padding:2px">
+         <span id="blink_badge"  class="badge badge-light"><b  style="background-image: linear-gradient(#b91372 ,#ca1a1a);border-radius: 10px;padding:3px">
           {{i.expires_in}} days left</b></span>
           
           {%elif i.expires_in < 0 %}
