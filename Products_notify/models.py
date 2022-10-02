@@ -6,7 +6,7 @@ class Products(models.Model):
     sdate=models.DateField(default="2022-01-01")
     edate=models.DateField(default="2022-01-01")
     photo=models.ImageField(upload_to="",default="default.png")
-    expires_in=models.CharField(default="",max_length=20)
+    expires_in=models.IntegerField(default=0)
     vendor_email=models.EmailField(default="",max_length=50)
     vendor_name=models.CharField(max_length=50)
     payment_mode=models.CharField(max_length=50,default="")

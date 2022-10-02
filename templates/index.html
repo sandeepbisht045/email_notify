@@ -7,9 +7,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Bootstrap CSS -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
+  
   <title>{% block title%}Products{% endblock %}</title>
   {% load static %}
   <link rel="stylesheet" href="{% static 'nav.css' %}">
@@ -17,7 +20,8 @@
     /* {% block css %} {% endblock %} */
 #auth:hover{background-color: #BB383B;border-radius: 9px;border: 0px solid; padding: 4px;}
 #prod:hover{background-color:#BB383B;border-radius: 9px;border: 0px solid; padding: 4px;}
-#add:hover{background-color: #BB383B;border-radius: 9px;border: 0px solid; padding: 4px;}
+#trigger_add_products_btn:hover{background-color: #BB383B !important;border-radius: 9px;border: 0px solid; padding: 4px;}
+#trigger_login_btn:hover{background-color: #BB383B !important;border-radius: 9px;border: 0px solid; padding: 4px;}
 
     #blink {
       font-family: serif;
@@ -91,11 +95,30 @@
 </head>
 
 <body style="background-color: #deebdd">
+<!-- hidden field for alert start here-->
+<p style="display: none;" data-trigger_add_product_modal="{{open_modal}}" id="trigger_add_product_modal"> </p>
+<!-- hidden field for alert  ends here-->
+
+ <!-- toast for add products starts here -->
+ {%if alert%}
+ <button type="button" class="btn btn-primary" style="display: none;" id="liveToastBtn"></button>
+ <div id="toast" class="position-fixed bottom-0 end-0 p-3 " style="z-index: 1100;">
+   <div id="liveToast" class="" role="alert" aria-live="assertive" aria-atomic="true">
+     <div class="toast-header" style="background-color: #0a30a3;">
+       <strong style="font-weight:bolder" class="me-auto">{{info}}</strong>
+       <!-- <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button> -->
+     </div>
+     </div>
+   </div>
+ </div>
+ {%endif%}
+ <!-- toast for add products ends here -->
+
     <!-- Button trigger modal -->
 <button id={{show_modal}} type="button" style="display:none" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
   click</button>
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <!-- Modal for excel sample -->
+  <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -157,20 +180,183 @@
       </div>
     </div>
   </div>
-  <!-- Modal ends -->
+  <!-- Modal for excel sample ends -->
+
+  <!-- Modal for A D D P R O D U C T S starts here -->
+  <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="add_products" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Add Product Here</h5>
+          <button id="close" onclick="redirect()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- add product form starts -->
+            <form method="post" action="/add_products" autocomplete="off">
+              {%csrf_token%}
+              <div class="form-group">
+                <label for="exampleInputEmail1"><b>Product Name</b> </label>
+                <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname" required minlength="4" placeholder="Enter Product" name="product" value="{{product}}">
+                 </div>
+                 <div class="form-group">
+                  <label for="exampleInputEmail1"><b>Vendor Name</b> </label>
+                  <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname" required minlength="4" placeholder="Enter Product" name="vendor_name" value="{{vendor_name}}">
+                   </div>
+                   <div class="form-group">
+                    <label for="exampleInputEmail1"><b>Vendor Email</b> </label>
+                    <input type="email" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname" required minlength="4" placeholder="Enter Product" name="vendor_email" value="{{vendor_email}}">
+                     </div>
+              <div class="form-group">
+                <label for="exampleInputPassword1"><b>License Date</b> </label>
+                <input type="date" class="form-control mb-2" id="license_date"  name="license_date" required value="{{sdate|date:"Y-m-d"}}">
+              </div>
+              <div class="form-group">
+                  <label for="exampleInputPassword1"> <b>Expiry Date</b></label>
+                  <input type="date" class="form-control mb-2" id="expiry_date"  name="expiry_date" required value="{{edate|date:"Y-m-d"}}">
+                </div>
+
+                <div class="form-group">
+                  <label style="display: block;" for="exampleInputPassword1"> <b>Payment Mode</b></label>
+                  <select style="width: 100%;height:37px" required name="payment_mode" id="exampleInputPassword1">
+                    <option disabled selected value="">Select</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Agreement">Agreement</option>
+                    <option value="Purchase Order">Purchase Order</option>
+                  </select>
+                </div>
+            
+              <button type="submit" class="btn btn-primary mt-4 mb-2"><b>Add Product</b></button>
+            </form>
+            <!-- add product form ends -->
+        </div>
+        <div class="modal-footer">
+         
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ------------------------------MODAL FOR ADD PRODUCTS ENDS HERE ------------------------------------------------>
+
+  <!-------------------------------- MODAL FOR EDIT PRODUCTS STARTS HERE --------------------------->
+  <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="update_products" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Update Product</h5>
+          <button id="close" onclick="redirect()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- edit product form starts -->
+            <form method="post" action="/edit/{{id}}/update" autocomplete="off">
+              {%csrf_token%}
+              <div class="form-group">
+                <label for="exampleInputEmail1"><b>Product Name</b> </label>
+                <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname" required minlength="4" placeholder="Enter Product" name="product" value="{{product}}">
+                 </div>
+                 <div class="form-group">
+                  <label for="exampleInputEmail1"><b>Vendor Name</b> </label>
+                  <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname" required minlength="4" placeholder="Enter Product" name="vendor_name" value="{{vendor_name}}">
+                   </div>
+                   <div class="form-group">
+                    <label for="exampleInputEmail1"><b>Vendor Email</b> </label>
+                    <input type="email" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname" required minlength="4" placeholder="Enter Product" name="vendor_email" value="{{vendor_email}}">
+                     </div>
+              <div class="form-group">
+                <label for="exampleInputPassword1"><b>License Date</b> </label>
+                <input type="date" class="form-control mb-2" id="license_date"  name="license_date" required value="{{sdate|date:"Y-m-d"}}">
+              </div>
+              <div class="form-group">
+                  <label for="exampleInputPassword1"> <b>Expiry Date</b></label>
+                  <input type="date" class="form-control" id="expiry_date"  name="expiry_date" required value="{{edate|date:"Y-m-d"}}">
+                </div>
+
+                <div class="form-group ml-4 mt-2">
+                  <label style="display: block;" for="exampleInputPassword1"> <b>Payment Mode</b></label>
+                  <select style="width: 100%;height:37px" required name="payment_mode" id="exampleInputPassword1">
+                    {% if payment_mode == c%}
+                    <option selected value="Credit Card">Credit Card</option>
+                    <option value="Agreement">Agreement</option>
+                    <option value="Purchase Order">Purchase Order</option>
+                    {% elif payment_mode == a%}
+                    <option selected value="Agreement">Agreement</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Purchase Order">Purchase Order</option>
+                    {% elif payment_mode == p%}
+                    <option value="Agreement">Agreement</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option selected value="Purchase Order">Purchase Order</option>
+                    {% endif %}
+                  </select>
+                </div>
+
+                <!-- <input type="hidden" value="update" name="type" style="display:none"> -->
+              <button type="submit" class="btn btn-primary mt-4 mb-2"><b>Update Product</b></button>
+            </form>
+            <!-- edit product form ends -->
+        </div>
+        <div class="modal-footer">
+         
+        </div>
+      </div>
+    </div>
+  </div
+  
+  <!-- ------------------------------- MODAL FOR EDIT PRODUCTS ENDS HERE ---------------------------------------- -->
+
+
+  <!-- ------------------------------- MODAL FOR LOGIN STARTS HERE ---------------------------------------- -->
+  <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="login" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Login Here</h5>
+          <button id="close" onclick="redirect()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- login form starts -->
+            <form method="post" action="/login" autocomplete="off">
+              {%csrf_token%}
+              <div class="form-group">
+                <label for="exampleInputEmail1"><b>Email address</b></label>
+                <input  value="{{email}}" required type="email" class="form-control mb-4" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" name="email">
+                 </div>
+              <div class="form-group">
+                <label for="exampleInputPassword1"><b>Password</b></label>
+                <input required  type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" name="password">
+              </div>
+            
+              <button type="submit" class="btn btn-primary mt-4 mb-2""><b>Login</b></button>
+            </form>
+            <!-- login form ends -->
+        </div>
+        <div class="modal-footer">
+         
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ------------------------------- MODAL FOR LOGIN ENDS HERE ---------------------------------------- -->
+
+  <!-- span and button to trigger edit products modal for very first time on edit starts here -->
+  <span style="display: none;" data-parameter="{{param}}" id="checking_edit" data-open_edit_modal="{{open_edit_modal}}"></span>
+  <button style="display:none;" id="trig_edit" type="button"  data-bs-toggle="modal" data-bs-target="#update_products">
+  </button>
+  <!-- span and button to trigger edit products modal for very first time on edit ends here -->
+
+<!-- ___________________________________________________________________________________________________ -->
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark" style="background-color: #032054 !important;">
     <div class="container-fluid">
-      <a id="prod" class="navbar-brand icon-color" href="/"><b style="color: white;">Products</b></a>
-      <a id="add" class="navbar-brand icon-color" href="/add_products"><b style="color: white;">Add Products</b></a>
-
-
-
+      <a id="prod" class="navbar-brand icon-color" href="/tabular"><b style="color: white;">Products</b></a>
+      <button style="background-color: #042354;border:0px " id="trigger_add_products_btn" type="button" class="navbar-brand icon-color" data-bs-toggle="modal" data-bs-target="#add_products">
+        <b style="color: white;">Add Products</b></button>
 
       {%if request.session.id%}
       <a id="auth"  class="navbar-brand icon-color" href="/logout"><b style="color: white;">Logout</b></a>
 
       {%else%}
-      <a id="auth" class="navbar-brand icon-color" href="/login"><b style="color: white;">Login</b></a>
+      <!-- <a id="auth" class="navbar-brand icon-color" href="/login"><b style="color: white;">Login</b></a> -->
+      <button style="background-color: #042354;border:0px " id="trigger_login_btn" type="button" class="navbar-brand icon-color" data-bs-toggle="modal" data-bs-target="#login">
+        <b style="color: white;">Login</b></button>
 
       {%endif%}
     </div>
@@ -184,7 +370,6 @@
   <div>.</div>
   <div>.</div>
   <div>.</div>
-
   {%block body%}
   {%if msg%}
   <div class="row" id="display_alert">
@@ -208,7 +393,7 @@
         <input required id="import_csv" type="file" onchange="return fileValidation()" name="import" style="display: none; ">
         <label class="m-2" for="import_csv" style="border: 2px solid black">Choose File</label>
         <button type="submit" class="btn btn-success" >Upload</button>
-        <a  href="/sample/format" id="sample" class="text-center m-2">Click for Sample File</a>
+        <a  href="#exampleModal" id="sample" class="text-center m-2" data-bs-toggle="modal" data-bs-target="#exampleModal">Click for Sample File</a>
       </form>  
         <div class="col-md-5"><form autocomplete="off" action="/subscribe" method="get"><input required  placeholder="Enter Email for Alert" style="display: inline; border-radius: 7px; " type="email" name="email" class="m-2 "><button  style="padding: 4px; color: white; background-color: green; border-radius: 5px; border: transparent;" type="submit" ><span style="font-weight: bold;border: 1px solid green;color:white;font-size:small">Subscribe/Unsubscribe</span></form></div>
      {%endif%}
@@ -216,132 +401,127 @@
      
       <div class="form-group mt-3 text-center">
         <label for="exampleInputPassword1"> <b>Filter</b></label>
-        <select  onclick="f(this)" required name="payment_mode" id="exampleInputPassword1">
+        <select  onclick="f(this)" required  id="exampleInputPassword1">
+          {% if not filter_selected %}
           <option disabled selected value="">Filter By</option>
           <option value="latest">Added Latest</option>
           <option value="earliest">Added Earliest</option>
           <option value="expired">Expired</option>
           <option value="active">Active</option>
+          {% else %}
+          {% if filter_selected == "latest" %}
+          <option selected value="latest">Added Latest</option>
+          <option value="earliest">Added Earliest</option>
+          <option value="expired">Expired</option>
+          <option value="active">Active</option>
+
+          {% elif filter_selected == "earliest" %}
+          <option  value="latest">Added Latest</option>
+          <option selected value="earliest">Added Earliest</option>
+          <option value="expired">Expired</option>
+          <option value="active">Active</option>
+
+          {% elif filter_selected == "active" %}
+          <option  value="latest">Added Latest</option>
+          <option  value="earliest">Added Earliest</option>
+          <option value="expired">Expired</option>
+          <option selected value="active">Active</option>
+
+          {% elif filter_selected == "expired" %}
+          <option  value="latest">Added Latest</option>
+          <option  value="earliest">Added Earliest</option>
+          <option selected value="expired">Expired</option>
+          <option value="active">Active</option>
+          {%endif%}
+          {%endif%}
         </select>
       </div>
 
-      {% for i in get_data %}
-
+      
       <!-- <div class="col-sm-4 ml-1"> -->
-      <div class="col-sm-4 ml-1">
+        <table class="mt-4 table table-hover table-bordered border-dark">
+          <thead>
+            <tr>
+              <!-- <th scope="col">{{forloop.counter}}</th> -->
+              <th scope="col">#</th>
+              <th scope="col">Product</th>
+              <th scope="col">Vendor</th>
+              <th scope="col">Email</th>
+              <th scope="col">License</th>
+              <th scope="col">Expires on</th>
+              <th scope="col">Status</th>
+              <th scope="col">Payment</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in get_data %}
+            <tr>
+              <th id="pay" scope="row">
+                {%if request.session.id%}
+                <span onclick="del(this)"  id="data_del" data-del="{{i.id}}" class="m-1"><i  onmouseenter="size_increase(this)" onmouseleave="size_decrease(this)" class="fa fa-trash-o" style="font-size:x-large;"></i></span>
+               {%endif%}
+                {{forloop.counter}}
+                {%if request.session.id%}
+                <span onclick="edit_modal_open(this)" data-param="edit" id="data_edit" data-edit="{{i.id}}" class="m-1" ><i  onmouseenter="size_increase(this)" onmouseleave="size_decrease(this)" class="fa fa-edit" style="font-size:x-large;"></i></span>
+                {%endif%}
+              </th>
+              <td>{{i.name|title}}</td>
+              <td>{{ i.vendor_name|title }}</td>
+              <td>{{ i.vendor_email|truncatechars:200}}</td>
+              <td>{{i.sdate|date:"d-m-Y"}}</td>
+              <td>{{i.edate|date:"d-m-Y"}}</td>
+              
+              {%if i.expires_in >= 0 %}
+              <td style="color: green">Active</td>
+              {%else%}
+              <td style="color: red;">Expired</td>
+              {%endif%}
+              <td>{{i.payment_mode}}</td>
 
-        <div class="card m-4" style="width: 20rem;background-image: linear-gradient(#A9F1DF ,#FFBBBB); border-radius: 20px;">
-       {%if i.expires_in > 0 %}
-         <span id="blink_badge"  class="badge badge-light"><b  style="background-image: linear-gradient(#b91372 ,#ca1a1a);border-radius: 10px;padding:3px">
-          {{i.expires_in}} days left</b></span>
-          
-          {%elif i.expires_in < 0 %}
-          <span id="blink_badge"  class="badge badge-light"><b  style="background-image: linear-gradient(#b91372 ,#ca1a1a);border-radius: 10px;padding:2px">
-           Expired</b></span>
-          
-           {%elif i.expires_in == 0 %}
-          <span id="blink_badge"  class="badge badge-light"><b  style="background-image: linear-gradient(#b91372 ,#ca1a1a);border-radius: 10px;padding:2px">
-           Expiring Today</b></span>
+            </tr>
+           
+          </tbody>
+          {% endfor %}
+        </table>
 
-          {%endif%}
-        
-          <img class="card-img-top" src="/media/{{i.photo}}" alt="" style="height: 25px; width: 25px ;">
-          <div class="card-body">
-            <h5 class="card-title"><b>{{i.name|title}}</b> </h5>
-            <span style="display: inline; color: blue; font-weight: bolder;">Vendor Name :</span> <span
-              class="card-text">{{ i.vendor_name|title }}</span> <br>
-            <hr>
-            <span style="display: inline; color: blue; font-weight: bolder;">Vendor Email :</span> <span
-              class="card-text">{{ i.vendor_email|truncatechars:200}}</span> <br>
-            <hr>
-            <span style="display: inline; color: blue; font-weight: bolder;">Purchased on :</span> <span
-              class="card-text">{{i.sdate}}</span>
-            <hr>
-            <span style="display: inline; color: blue; font-weight: bolder;">Expires on :</span> <span
-              class="card-text">{{i.edate}}</span>
-            <hr>
-            <span style="display: inline; color: blue; font-weight: bolder;">Payment Mode :</span> <span
-              class="card-text">{{i.payment_mode}}</span>
-  
-              {%if request.session.id%}
-            
-            <button  type="button" class="btn btn-danger m-4 " value="{{i.id}}" onclick="del(this)"
-            style="background-image: linear-gradient(#a80c3e)"
-            >Delete</button>
-
-            <!-- submit form for edit products -->
-            <form action="/edit/{{i.id}}" method="post" style="display:inline">
-              {%csrf_token%}
-              <input type="text" value="edit" name="type" style="display:none">
-              <input type="submit" class="btn btn-success m-4 " value="Edit"></button>
-            </form>
-            <!-- submit form for edit products ends here -->
-            {%endif%}
-          </div>
-        </div>
-      </div>
-
-      {% endfor %}
 
     </div>
   </div>
-
+                <!-- J A V A S C R I P T -->
 
   {% block js %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
   <script>
-    setTimeout(function f(){document.getElementById("modal").click()},2)
-    var display_alert = document.getElementById("display_alert");
-    setTimeout(
-      function x() {
-        display_alert.style.display = "none";
-      }, 3000
-    )
+    // setTimeout(function f(){document.getElementById("modal").click()},2)
+   
       
-    var y=document.getElementById("hidden").value;
-    var z=document.getElementById("show_msg").getAttribute("data-alert") ;
-    
-    if(y!="" && z==""){
-      if (y=="Product has been added successfully"){y="added" }
-      else if(y=="Product has been updated successfully"){y="updated"}
-      else if(y=="You have unsubscribed & won't get any alert regarding products expiry in future"){y="unsubscribe"}
-      else if(y=="You have subscribed successfully for email alert"){y="subscribe"}
-      else if(y=="Product is not available"){y="not_available"}
-        
-        var url="/?res="+y
-        location.replace(url)
-   }
-
-   if (z=="param"){
-    document.getElementById("show_msg").style.display="block";
-    setTimeout(function(){
-    document.getElementById("show_msg").style.display="none";
-      
-     	},3000
-  )
-   }
-// delete function to send id to server
+ 
+// delete function to send id to server starts here
     function del(arg) {
       var txt;
+    var del_data=arg.getAttribute("data-del");
+
       if (confirm("Are you sure you want to delete?")) {
-        var url="/delete/"+arg.value
+        var url="/delete/"+del_data
         location.replace(url)
-        // document.getElementById("delete").submit();
       }
     }
+// delete function to send id to server ends here
 
-    // function for sending filter option value to server
+
+    // function for sending filter option value to server starts
     function f(e){
-      if(e.value=="latest"){location.replace("/?filter="+e.value)}
-      else if(e.value=="earliest"){location.replace("/?filter="+e.value)}
-      else if(e.value=="expired"){location.replace("/?filter="+e.value)}
-      else if(e.value=="active"){location.replace("/?filter="+e.value)}
-      
+      if(e.value=="latest"){location.replace("/tabular/"+e.value)}
+      else if(e.value=="earliest"){location.replace("/tabular/"+e.value)}
+      else if(e.value=="expired"){location.replace("/tabular/"+e.value)}
+      else if(e.value=="active"){location.replace("/tabular/"+e.value)}
     }
+    // function for sending filter option value to server ends
 
+    // file validation for csv starts
     function fileValidation() {
             var fileInput =
                 document.getElementById('import_csv');
-             
             var filePath = fileInput.value;
          
             // Allowing file type
@@ -353,16 +533,74 @@
                 return false;
             }
         }
+        // file validation for csv ends here
     
+          // delete and edit icon color manipulate starts here
+        function size_increase(elem){
+          elem.style.color="red"}
+
+          function size_decrease(elem){
+          elem.style.color=""}
+          // delete and edit icon color manipulate ends here
+
+// logic to trigger add product modal starts here
+$(document).ready(function(){
+trigger_data_value=document.getElementById("trigger_add_product_modal").getAttribute("data-trigger_add_product_modal");
+if(trigger_data_value=="open_modal"){
+  document.getElementById("trigger_add_products_btn").click()
+}
+})
+// logic to trigger add product modal ends here
+
+
+// redirecting to home page start
+function redirect(){
+  // location.replace("/tabular")
+  $().modal("hide");
+
+}
+// redirecting to home page end
+
+// fading out toast starts
+$("#toast").fadeOut(7000);
+// fading out toast ends
+
+// function to pass edit product id toserver start
+function edit_modal_open(argv){
+edit_id=argv.getAttribute("data-edit");
+edit_param=argv.getAttribute("data-param");
+location.replace("/edit/"+edit_id+"/"+edit_param)
+}
+// function  to pass edit product id to server end here
+
+// triggering modal for editing product details starts here 
+$(document).ready(function(){
+ var checking_edit=document.getElementById("checking_edit").getAttribute("data-parameter")
+var open_edit_modal=document.getElementById("checking_edit").getAttribute("data-open_edit_modal")
+if(checking_edit=="edit" || open_edit_modal=="open_edit_modal"){
+  document.getElementById("trig_edit").click();
+  }
+})
+// triggering modal for editing product details ends here
+
+// trigerring login modal if invalid credentials starts here
+$(document).ready(function(){
+var open_edit_modal=document.getElementById("checking_edit").getAttribute("data-open_edit_modal")
+if(open_edit_modal=="invalid_cred"){
+  document.getElementById("trigger_login_btn").click();
+  }
+})
+// trigerring login modal if invalid credentials ends here
+
   </script>
   {% endblock %}
-
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
     crossorigin="anonymous"></script>
 
-  
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+
 </body>
 {%endblock%}
 

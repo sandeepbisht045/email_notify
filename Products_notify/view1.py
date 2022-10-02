@@ -23,8 +23,6 @@ def mail_send(request):
                   prod_lst.append(f"{i.name} : {difference} days")
             #    elif difference==0:
             elif difference==0:
-                    prod_lst.append(f"{i.name} will expire today")
-            elif difference<0:
                     prod_lst.append(f"{i.name} expired")
         if prod_lst:
             htmlgen = f"<h3> Your purchased products will expire as mentioned below : </h3> <br>"
@@ -47,10 +45,14 @@ def mail_send(request):
         return HttpResponse("Products are not available in the db")
 
 
-def tabular(request,filter_=None):
-    
+def index(request,param=None):
+    msg,pr_="",""
     get_data = Products.objects.all()
-    filter_selected=""
+    if param!=None:
+        return render(request,"index.html",{"show_modal":"modal","get_data":get_data})
+
+    param_=request.GET.get("res")
+    filter_=request.GET.get("filter")
     if filter_:
         if filter_=="latest":
             get_data = Products.objects.all().order_by('-id')
@@ -60,46 +62,54 @@ def tabular(request,filter_=None):
             get_data = Products.objects.filter(expires_in__lt=0)
         elif filter_=="active":
             get_data = Products.objects.filter(expires_in__gte=0)
-        filter_selected=filter_
+        
+    if param_:
+        pr_="param"
+        if param_=="updated":
+            msg="Product has been updated successfully"
+        elif param_=="added":
+            msg="Product has been added successfully"
+        elif param_=="unsubscribe":
+            msg="You have unsubscribed & won't get any alert regarding products expiry in future"
+        elif param_=="subscribe":
+            msg="You have subscribed successfully for email alert"
+        elif param_=="not_available":
+            msg="Product is not available"
     if get_data:
         for i in get_data:
             difference = (i.edate-cur_date).days
+            # if difference <= 30 and difference > 0:
             i.expires_in=difference
             i.save()       
-    
-    return render(request, "index.html", {"get_data": get_data,"filter_selected":filter_selected})
-
+           
+    return render(request, "index.html", {"get_data": get_data,"msg":msg,"param":pr_})
 
 
 def login(request):
-    info=""
     if not request.session.get("id"):
         if request.method == "POST":
             email = request.POST.get("email")
             password = request.POST.get("password")
+            
             filter_data = User.objects.filter(email=email, password=password).first()
             if filter_data:
                 request.session["id"] = filter_data.id
-                return redirect("/tabular")
-            else:
-                info="Invalid email or password"
-                return render(request, "index.html", {"open_edit_modal":"invalid_cred","alert":"invalid","info": info,"email":email,"get_data":Products.objects.all()})
 
-    return render(request, "index.html")
+                return redirect("/")
+            else:
+                return render(request, "login.html", {"alert": "Invalid email or password","email":email})
+
+    return render(request, "login.html")
 
 
 def logout(request):
     if request.session.get("id"):
         request.session.clear()
-        return redirect("/tabular")
+        return redirect("/login")
 
 
 def add_products(request):
-    if not request.session.get("id"):
-        info="Please login first to add products"
-        return render(request, "index.html", {"alert": "login_first","info":info,"get_data":Products.objects.all()})
     if request.method == "POST":
-            info=''
             product = request.POST.get("product")
             vendor_name = request.POST.get("vendor_name")
             vendor_email = request.POST.get("vendor_email")
@@ -109,32 +119,42 @@ def add_products(request):
             
             sdate=datetime.datetime.strptime(license_date,'%Y-%m-%d').date()
             edate=datetime.datetime.strptime(expiry_date,'%Y-%m-%d').date()
+            # license_lst = license_date.split("-")
+            # expiry_lst = expiry_date.split("-")
+            # sdate = datetime.date(int(license_lst[0]), int(
+            #     license_lst[1]), int(license_lst[2]))
+            # edate = datetime.date(int(expiry_lst[0]), int(
+            #     expiry_lst[1]), int(expiry_lst[2]))
            
             if(sdate-cur_date).days > 0:
-                info='Product purchased date cannot be greater than current date'
-                return render(request, "index.html", {"alert": "pd_g_cd","open_modal":"open_modal","info":info, "product": product, "vendor_name": vendor_name, "vendor_email": vendor_email,"sdate":sdate,"edate":edate,"get_data": Products.objects.all()})
+                return render(request, "add_products.html", {"alert": "Product purchased date cannot be greater than current date", "product": product, "vendor_name": vendor_name, "vendor_email": vendor_email,"sdate":sdate,"edate":edate})
             elif(edate-sdate).days < 0:
-                info='Product purchased date cannot be greater than expiry date'
-                return render(request, "index.html", {"alert": "pd_g_ed","open_modal":"open_modal","info":info, "product": product, "vendor_name": vendor_name, "vendor_email": vendor_email,"sdate":sdate,"edate":edate,"get_data": Products.objects.all()})
+                return render(request, "add_products.html", {"alert": "Product purchased date cannot be greater than expiry date", "product": product, "vendor_name": vendor_name, "vendor_email": vendor_email,"sdate":sdate,"edate":edate})
             else:
                 expires_in = (edate-cur_date).days
                 Products.objects.create(name=product, sdate=sdate, edate=edate,payment_mode=payment_mode,
                                         vendor_name=vendor_name, vendor_email=vendor_email,expires_in=expires_in).save()
-                info='Product has been added successfully'
-                return render(request, "index.html", {"alert": "added_success","info":info, "get_data": Products.objects.all()})
+                return render(request, "index.html", {"msg": "Product has been added successfully", "get_data": Products.objects.all()})
 
-    return render(request, "index.html")
+
+    elif not request.session.get("id"):
+        return render(request, "login.html", {"alert": "Login first to add products"})
+
+    return render(request, "add_products.html")
 
 
 def delete(request,id):
+    print(id,"jjjjjj")
     if request.session.get("id"):
         try:
             data = Products.objects.get(id=id)
+            print(data,"data")
             data.delete()
-            return redirect("/tabular")
+            return redirect("/")
 
         except:
-            return redirect("/tabular")
+            print("except")
+            return redirect("/")
         
     else:
         return render(request, "login.html", {"alert": "Login first to delete"})
@@ -151,15 +171,14 @@ def search(request):
                 i.save()       
             return render(request,"index.html",{"get_data":query})
         else:
-             return redirect("/tabular")
+             return redirect("/")
 
     else:
-        return redirect("/tabular")
+        return redirect("/")
 
 
 
 def subscribe(request):
-    info=""
     if request.session.get("id"):
         email = request.GET.get("email")
         
@@ -169,32 +188,28 @@ def subscribe(request):
             if status==1:
                 subs.status=0
                 subs.save()
-                info= "You have unsubscribed & won't get any alert regarding products expiry in future"
-                return render(request, "index.html", {"info":info,"alert":"unsubscribed", "get_data": Products.objects.all()})
+                return render(request, "index.html", {"msg": "You have unsubscribed & won't get any alert regarding products expiry in future", "get_data": Products.objects.all()})
 
             else:
+                # subs.update(status=1)
                 subs.status=1
                 subs.save()
-                info= "You have subscribed successfully for email alert"
-                return render(request, "index.html", {"info":info, "get_data": Products.objects.all(),"alert":"subscribed"})
+                return render(request, "index.html", {"msg": "You have subscribed successfully for email alert", "get_data": Products.objects.all()})
     
         else:
             Subscribe.objects.create(email=email).save()
-            info= "You have subscribed successfully for email alert"
-            return render(request, "index.html", {"info":info, "get_data": Products.objects.all(),"alert":"subscribed"})
+            return render(request, "index.html", {"msg": "You have subscribed successfully for email alert", "get_data": Products.objects.all()})
 
            
     else:
-        info="Login first to continue"
-        return render(request, "index.html", {"alert": "login_first ","info":info,"get_data": Products.objects.all()})
+        return render(request, "login.html", {"alert": "Login first to proceed"})
         
 
 def export(request):
-    info=""
     if request.session.get("id"):
         prods=Products.objects.all()
         if not prods:
-            return redirect("/tabular")     
+            return redirect("/")     
         for i in prods:
             difference = (i.edate-cur_date).days
             i.expires_in=difference
@@ -218,32 +233,25 @@ def export(request):
         response['Content-Disposition']='attachment;filename="Products_Details.csv"'
         return response
     else:
-        info="Loin first to continue"
-        return render(request, "index.html", {"alert": "login_first ","info":info,"get_data":prods})
+        return render(request, "login.html", {"alert": "Login first to export "})
    
 
 
 # function to edit or update products
-def edit_products(request,id,param):
-    info=''
-    if not request.session.get("id"):
-        info="Please login first to add products"
-        return render(request, "index.html", {"alert": "login_first","info":info})
-    try:
-        obj=Products.objects.get(pk=id)
-    except:
-        info='Products are not available'
-        return render(request, "index.html", {"info":info,"alert":"not_available", "get_data": Products.objects.all()})
-    if request.method == "GET":
+def edit_products(request,id):
+    if request.method == "POST":
+        
+        try:
+            obj=Products.objects.get(pk=id)
+        except:
+            return render(request, "index.html", {"msg": "Product is not available", "get_data": Products.objects.all()})
 
-        if param == "edit":
-            return render(request, "index.html", {"id":obj.id,"product":obj.name, "vendor_name": obj.vendor_name, 
-            "vendor_email": obj.vendor_email,"sdate":obj.sdate,"edate":obj.edate,"payment_mode":obj.payment_mode,"c":"Credit Card"
-            ,"p":"Purchase Order","a":"Agreement","param":"edit","get_data":Products.objects.all()})
-        else:
-            return redirect("/tabular")
-    if request.method=='POST':
-        if param=="update":
+        type_=request.POST.get("type")
+        if type_=="edit":
+            return render(request, "edit_products.html", {"get_data": obj,"c":"Credit Card"
+            ,"p":"Purchase Order","a":"Agreement"})
+        if type_=="update":
+            
             product = request.POST.get("product")
             vendor_name = request.POST.get("vendor_name")
             vendor_email = request.POST.get("vendor_email")
@@ -253,28 +261,24 @@ def edit_products(request,id,param):
         
             sdate=datetime.datetime.strptime(license_date,'%Y-%m-%d').date()
             edate=datetime.datetime.strptime(expiry_date,'%Y-%m-%d').date()
-            dict_data={"open_edit_modal":"open_edit_modal","c":"Credit Card"
-                ,"p":"Purchase Order","a":"Agreement","id":obj.id,"product":product, "vendor_name":vendor_name,
-                "vendor_email":vendor_email,"sdate":sdate,"edate":edate,"payment_mode":payment_mode,
-                "get_data": Products.objects.all()}
-            if (sdate-cur_date).days > 0:
-                info="Product purchased date cannot be greater than current date"
-                dict_data.update({"alert": "pd_g_cd","info":info})
-                return render(request, "index.html", dict_data)
-            elif(edate-sdate).days < 0:
-                info="Product purchased date cannot be greater than expiry date"
-                dict_data.update({"alert": "pd_g_ed","info":info})
-                return render(request, "index.html", dict_data)
-    
-            else:
-                obj.name,obj.sdate,obj.edate,obj.vendor_name,obj.vendor_email,obj.payment_mode=product, sdate,edate,vendor_name, vendor_email,payment_mode
-                obj.save()
-                info="Product has been updated successfully"
-                return render(request, "index.html", {"alert":"updated_success","info": info, "get_data": Products.objects.all()})
+                 
+        if (sdate-cur_date).days > 0:
+                return render(request, "edit_products.html", {"alert": "Product purchased date cannot be greater than current date","get_data": obj,"c":"Credit Card"
+            ,"p":"Purchase Order","a":"Agreement"})
+        elif(edate-sdate).days < 0:
+            return render(request, "edit_products.html", {"alert": "Product purchased date cannot be greater than expiry date","get_data": obj,"c":"Credit Card"
+            ,"p":"Purchase Order","a":"Agreement"})
+  
         else:
-            return render(request,"index.html",{"get_data":Products.objects.all()})
+            obj.name,obj.sdate,obj.edate,obj.vendor_name,obj.vendor_email,obj.payment_mode=product, sdate,edate,vendor_name, vendor_email,payment_mode
+            obj.save()
+            return render(request, "index.html", {"msg": "Product has been updated successfully", "get_data": Products.objects.all()})
+        
 
-    # return render(request, "edit_products.html")
+    elif not request.session.get("id"):
+        return render(request, "login.html", {"alert": "Login first to update products"})
+
+    return render(request, "edit_products.html")
 
 
 def import_file(request):
@@ -305,11 +309,13 @@ def import_file(request):
                     ,vendor_email=dbframe.VendorEmail,vendor_name=dbframe.VendorName,payment_mode=dbframe.Payment)
                     new_obj.save()
                 
-            return redirect("/tabular")
-        return redirect("/tabular")
+            return redirect("/")
+        return redirect("/")
     except:
-        return redirect("/tabular")
+        return redirect("/")
 
 
-def tabs(request):
-    return render(request,"sample.html")
+def tabular(request):
+    get_data = Products.objects.all()
+
+    return render(request,"sample.html",{"get_data":get_data})
