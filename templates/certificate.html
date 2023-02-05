@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
   
-  <title>{% block title%}Home{% endblock %}</title>
+  <title>{% block title%}Certificates{% endblock %}</title>
   {% load static %}
   <link rel="stylesheet" href="{% static 'nav.css' %}">
   <style>
@@ -190,25 +190,18 @@
     <div class="modal-dialog ">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Add Product Here</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Add Certificate Here</h5>
           <button id="close" onclick="redirect()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <!-- add product form starts -->
-            <form method="post" action="/add_products" autocomplete="off" id="form_add_products">
+            <form method="post" action="/add_certificate" autocomplete="off" id="form_add_products">
               {%csrf_token%}
               <div class="form-group">
-                <label for="exampleInputEmail1"><b>Product Name</b> </label>
+                <label for="exampleInputEmail1"><b>Certificate Name</b> </label>
                 <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname1" required minlength="4" placeholder="Enter Product" name="product" value="{{product}}">
                  </div>
-                 <div class="form-group">
-                  <label for="exampleInputEmail1"><b>Vendor Name</b> </label>
-                  <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname2" required minlength="4" placeholder="Enter Product" name="vendor_name" value="{{vendor_name}}">
-                   </div>
-                   <div class="form-group">
-                    <label for="exampleInputEmail1"><b>Vendor Email</b> </label>
-                    <input type="email" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname3" required minlength="4" placeholder="Enter Product" name="vendor_email" value="{{vendor_email}}">
-                     </div>
+               
               <div class="form-group">
                 <label for="exampleInputPassword1"><b>License Date</b> </label>
                 <input type="date" class="form-control mb-2" id="license_date"  name="license_date" required value="{{sdate|date:"Y-m-d"}}">
@@ -217,18 +210,21 @@
                   <label for="exampleInputPassword1"> <b>Expiry Date</b></label>
                   <input type="date" class="form-control mb-2" id="expiry_date"  name="expiry_date" required value="{{edate|date:"Y-m-d"}}">
                 </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1"> <b>Price</b></label>
+                    <input onBlur="if(isNaN(Number(this.value.trim()))) {this.value = ''}" type="text" class="form-control mb-2" id="price"  name="price" required value="{{price}}">
+                  </div>
 
                 <div class="form-group">
-                  <label style="display: block;" for="exampleInputPassword1"> <b>Payment Mode</b></label>
-                  <select style="width: 100%;height:37px" required name="payment_mode" id="exampleInputPassword1">
+                  <label style="display: block;" for="exampleInputPassword1"> <b>Auto-Renew</b></label>
+                  <select style="width: 100%;height:37px" required name="auto_renew" id="exampleInputPassword1">
                     <option disabled selected value="">Select</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Agreement">Agreement</option>
-                    <option value="Purchase Order">Purchase Order</option>
+                    <option value="on">On</option>
+                    <option value="off">Off</option>
                   </select>
                 </div>
             
-              <button type="submit" class="btn btn-primary mt-4 mb-2"><b>Add Product</b></button>
+              <button type="submit" class="btn btn-primary mt-4 mb-2"><b>Add Certificate</b></button>
             </form>
             <!-- add product form ends -->
         </div>
@@ -245,25 +241,25 @@
     <div class="modal-dialog ">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Update Product</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Update Certificate</h5>
           <button id="close" onclick="redirect()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <!-- edit product form starts -->
-            <form method="post" action="/edit/{{id}}/update" autocomplete="off">
+            <form method="post" action="/certificate/edit/{{id}}/update" autocomplete="off">
               {%csrf_token%}
               <div class="form-group">
-                <label for="exampleInputEmail1"><b>Product Name</b> </label>
+                <label for="exampleInputEmail1"><b>Certificate Name</b> </label>
                 <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname4" required minlength="4" placeholder="Enter Product" name="product" value="{{product}}">
                  </div>
-                 <div class="form-group">
+                 <!-- <div class="form-group">
                   <label for="exampleInputEmail1"><b>Vendor Name</b> </label>
                   <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname5" required minlength="4" placeholder="Enter Product" name="vendor_name" value="{{vendor_name}}">
                    </div>
                    <div class="form-group">
                     <label for="exampleInputEmail1"><b>Vendor Email</b> </label>
                     <input type="email" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname6" required minlength="4" placeholder="Enter Product" name="vendor_email" value="{{vendor_email}}">
-                     </div>
+                     </div> -->
               <div class="form-group">
                 <label for="exampleInputPassword1"><b>License Date</b> </label>
                 <input type="date" class="form-control mb-2" id="license_date"  name="license_date" required value="{{sdate|date:"Y-m-d"}}">
@@ -272,22 +268,20 @@
                   <label for="exampleInputPassword1"> <b>Expiry Date</b></label>
                   <input type="date" class="form-control" id="expiry_date"  name="expiry_date" required value="{{edate|date:"Y-m-d"}}">
                 </div>
-
+                <div class="form-group">
+                    <label for="exampleInputPassword1"> <b>Price</b></label>
+                    <input onBlur="if(isNaN(Number(this.value.trim()))) {this.value = ''}" type="text" class="form-control mb-2" id="price"  name="price" required value="{{price}}">
+                  </div>
                 <div class="form-group ml-4 mt-2">
-                  <label style="display: block;" for="exampleInputPassword1"> <b>Payment Mode</b></label>
-                  <select style="width: 100%;height:37px" required name="payment_mode" id="exampleInputPassword1">
-                    {% if payment_mode == c%}
-                    <option selected value="Credit Card">Credit Card</option>
-                    <option value="Agreement">Agreement</option>
-                    <option value="Purchase Order">Purchase Order</option>
-                    {% elif payment_mode == a%}
-                    <option selected value="Agreement">Agreement</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Purchase Order">Purchase Order</option>
-                    {% elif payment_mode == p%}
-                    <option value="Agreement">Agreement</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option selected value="Purchase Order">Purchase Order</option>
+                  <label style="display: block;" for="exampleInputPassword1"> <b>Auto_Renew</b></label>
+                  <select style="width: 100%;height:37px" required name="auto_renew" id="exampleInputPassword1">
+                    {% if auto_renew == 'on'%}
+                    <option selected value="on">On</option>
+                    <option value="off">Off</option>
+                    {% elif auto_renew == 'off'%}
+                    <option selected value="off">Off</option>
+                    <option value=" on">On</option>
+                   
                     {% endif %}
                   </select>
                 </div>
@@ -316,7 +310,7 @@
         </div>
         <div class="modal-body">
             <!-- login form starts -->
-            <form method="post" action="/login" autocomplete="off">
+            <form method="post" action="certificate/login" autocomplete="off">
               {%csrf_token%}
               <div class="form-group">
                 <label for="exampleInputEmail1"><b>Email address</b></label>
@@ -351,20 +345,20 @@
       <a id="prod" class="navbar-brand icon-color" href="/"><b style="color: white;">Home</b></a>
       {%if request.session.id%}
       <button style="background-color: #042354;border:0px " id="trigger_add_products_btn" type="button" class="navbar-brand icon-color" data-bs-toggle="modal" data-bs-target="#add_products">
-        <b style="color: white;">Add Products</b></button>
+        <b style="color: white;">Add Certificates</b></button>
 <!-- today -->
-<div class="col-md-5"><form autocomplete="off" action="/subscribe" method="post">{%csrf_token%}<input required  
+<div class="col-md-5"><form autocomplete="off" action="{% url 'subscribe_certificate' %}" method="post">{%csrf_token%}<input required  
   placeholder="Enter Email for Alert" style="width: 40%;display: inline; border-radius: 7px;background:wheat;border: 2px solid white;" 
-  type="email" name="email" class="m-2  "><button style="padding: 4px; color: white;
+  type="email" name="email" class="m-2  "><button  style="padding: 4px; color: white;
    background:transparent; border-radius: 0.25remn; border: transparent;" type="submit"  >
    <span id="subscribe" style="font-weight: bold;border: 1px solid green;color:white;font-size:small;padding: 10px;">
     Subscribe/Unsubscribe</span></form></div>
     {%endif%}
-    <div class="col-md-4"><form autocomplete="off" action="/search" method="get"><input required  placeholder="Search Products" style="width: 35%;display: inline; border-radius: 10px;background: wheat; " type="text" name="search" class="m-2 "><input id="search" style="padding: 4px; color: white; background: transparent; border-radius: 10px; border: 1px solid green; padding-left: 5px;padding-right: 5px;" type="submit" value="Search"></form></div></div>
+    <div class="col-md-4"><form autocomplete="off" action="{% url 'search_certificate' %}" method="get"><input required  placeholder="Search Domain" style="width: 35%;display: inline; border-radius: 10px;background: wheat; " type="text" name="search" class="m-2 "><input id="search" style="padding: 4px; color: white; background: transparent; border-radius: 10px; border: 1px solid green; padding-left: 5px;padding-right: 5px;" type="submit" value="Search"></form></div></div>
 
 <!-- today -->
       {%if request.session.id%}
-      <a id="auth"  class="navbar-brand icon-color" href="/logout"><b style="color: white;">Logout</b></a>
+      <a id="auth"  class="navbar-brand icon-color" href="certificate/logout"><b style="color: white;">Logout</b></a>
 
       {%else%}
       <!-- <a id="auth" class="navbar-brand icon-color" href="/login"><b style="color: white;">Login</b></a> -->
@@ -400,14 +394,14 @@
       
       <div class="row ">
       {%if request.session.id%}
-      <div class="col_md-5 mb-2 text-center"><a class="btn btn-primary" href="/export">Export CSV</a></div>
-      <form action="/import" method="post" enctype="multipart/form-data" class="text-center m-4">
-        {%csrf_token%}
-        <input required id="import_csv" type="file" onchange="return fileValidation()" name="import" style="display: none; ">
-        <label class="m-2" for="import_csv" style="border: 2px solid black">Choose File</label>
-        <button type="submit" class="btn btn-success" >Upload</button>
-        <a  href="#exampleModal" id="sample" class="text-center m-2" data-bs-toggle="modal" data-bs-target="#exampleModal">Click for Sample File</a>
-      </form>  
+      <div class="col_md-5 mb-2 text-center"><a class="btn btn-primary" href="certificate/export">Export CSV</a></div>
+      <!-- <form action="/import" method="post" enctype="multipart/form-data" class="text-center m-4"> -->
+        <!-- {%csrf_token%} -->
+        <!-- <input required id="import_csv" type="file" onchange="return fileValidation()" name="import" style="display: none; "> -->
+        <!-- <label class="m-2" for="import_csv" style="border: 2px solid black">Choose File</label> -->
+        <!-- <button type="submit" class="btn btn-success" >Upload</button> -->
+        <!-- <a  href="#exampleModal" id="sample" class="text-center m-2" data-bs-toggle="modal" data-bs-target="#exampleModal">Click for Sample File</a> -->
+      <!-- </form>   -->
      {%endif%}
      
 
@@ -421,27 +415,27 @@
           <option value="expired">Expired</option>
           <option value="active">Active</option>
           {% else %}
-          <!-- {% if filter_selected == "latest" %}
-          <option selected value="latest">Added Latest</option>
-          <option value="earliest">Added Earliest</option>
+          {% if filter_selected == "latest" %}
+          <!-- <option selected value="latest">Added Latest</option>
+          <option value="earliest">Added Earliest</option> -->
           <option value="expired">Expired</option>
           <option value="active">Active</option>
 
           {% elif filter_selected == "earliest" %}
-          <option  value="latest">Added Latest</option>
-          <option selected value="earliest">Added Earliest</option>
+          <!-- <option  value="latest">Added Latest</option>
+          <option selected value="earliest">Added Earliest</option> -->
           <option value="expired">Expired</option>
-          <option value="active">Active</option> -->
+          <option value="active">Active</option>
 
           {% elif filter_selected == "active" %}
-          <!-- <option  value="latest">Added Latest</option> -->
-          <!-- <option  value="earliest">Added Earliest</option> -->
+          <!-- <option  value="latest">Added Latest</option>
+          <option  value="earliest">Added Earliest</option> -->
           <option value="expired">Expired</option>
           <option selected value="active">Active</option>
 
           {% elif filter_selected == "expired" %}
-          <!-- <option  value="latest">Added Latest</option> -->
-          <!-- <option  value="earliest">Added Earliest</option> -->
+          <!-- <option  value="latest">Added Latest</option>
+          <option  value="earliest">Added Earliest</option> -->
           <option selected value="expired">Expired</option>
           <option value="active">Active</option>
           {%endif%}
@@ -456,13 +450,14 @@
             <tr>
               <!-- <th scope="col">{{forloop.counter}}</th> -->
               <th scope="col">#</th>
-              <th scope="col">Product</th>
-              <th scope="col">Vendor</th>
-              <th scope="col">Email</th>
+              <th scope="col">Domain</th>
+              <!-- <th scope="col">Vendor</th> -->
+              <!-- <th scope="col">Email</th> -->
               <th scope="col">License</th>
               <th scope="col">Expires on</th>
               <th scope="col">Status</th>
-              <th scope="col">Payment</th>
+              <th scope="col">Price</th>
+              <th scope="col">Auto-Renew</th>
             </tr>
           </thead>
           <tbody>
@@ -478,8 +473,8 @@
                 {%endif%}
               </th>
               <td>{{i.name|title}}</td>
-              <td>{{ i.vendor_name|title }}</td>
-              <td>{{ i.vendor_email|truncatechars:200}}</td>
+              <!-- <td>{{ i.vendor_name|title }}</td>
+              <td>{{ i.vendor_email|truncatechars:200}}</td> -->
               <td>{{i.sdate|date:"d-m-Y"}}</td>
               <td>{{i.edate|date:"d-m-Y"}}</td>
               
@@ -488,8 +483,13 @@
               {%else%}
               <td style="color: red;">Expired</td>
               {%endif%}
-              <td>{{i.payment_mode}}</td>
-
+              <td>Rs. {{i.price}}</td>
+                
+              {%if i.auto_renew == 0 %}
+              <td style="color: red">Off</td>
+              {%else%}
+              <td style="color: green;">On</td>
+              {%endif%}
             </tr>
            
           </tbody>
@@ -514,7 +514,7 @@
     var del_data=arg.getAttribute("data-del");
 
       if (confirm("Are you sure you want to delete?")) {
-        var url="/delete/"+del_data
+        var url="/certificates/delete/"+del_data
         location.replace(url)
       }
     }
@@ -525,8 +525,8 @@
     function f(e){
       if(e.value=="latest"){location.replace("/tabular/"+e.value)}
       else if(e.value=="earliest"){location.replace("/tabular/"+e.value)}
-      else if(e.value=="expired"){location.replace("/tabular/"+e.value)}
-      else if(e.value=="active"){location.replace("/tabular/"+e.value)}
+      else if(e.value=="expired"){location.replace("/certificates/"+e.value)}
+      else if(e.value=="active"){location.replace("/certificates/"+e.value)}
     }
     // function for sending filter option value to server ends
 
@@ -586,7 +586,7 @@ $("#toast").fadeOut(7000);
 function edit_modal_open(argv){
 edit_id=argv.getAttribute("data-edit");
 edit_param=argv.getAttribute("data-param");
-location.replace("/edit/"+edit_id+"/"+edit_param)
+location.replace("/certificate/edit/"+edit_id+"/"+edit_param)
 }
 // function  to pass edit product id to server end here
 
