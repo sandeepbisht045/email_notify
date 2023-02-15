@@ -269,8 +269,10 @@ def edit_products(request,id,param):
                 return render(request, "index.html", dict_data)
     
             else:
-                obj.name,obj.sdate,obj.edate,obj.vendor_name,obj.vendor_email,obj.payment_mode=product, sdate,edate,vendor_name, vendor_email,payment_mode
+                difference = (edate-cur_date).days
+                obj.name,obj.sdate,obj.edate,obj.vendor_name,obj.vendor_email,obj.payment_mode,obj.expires_in=product, sdate,edate,vendor_name, vendor_email,payment_mode,difference
                 obj.save()
+
                 info="Product has been updated successfully"
                 return render(request, "index.html", {"alert":"updated_success","info": info, "get_data": Products.objects.all()})
         else:
@@ -503,7 +505,8 @@ def edit_certificate(request,id,param):
     
             else:
                 auto_renew= 0 if auto_renew=='off' else 1
-                obj.name,obj.sdate,obj.edate,obj.auto_renew,obj.price=product, sdate,edate,auto_renew,price
+                difference = (edate-cur_date).days
+                obj.name,obj.sdate,obj.edate,obj.auto_renew,obj.price,obj.expires_in=product, sdate,edate,auto_renew,price,difference
                 obj.save()
                 info="Certificate has been updated successfully"
                 return render(request, "certificate.html", {"alert":"updated_success","info": info, "get_data": Certificates.objects.all()})
