@@ -121,7 +121,7 @@ def add_products(request):
                 Products.objects.create(name=product, sdate=sdate, edate=edate,payment_mode=payment_mode,
                                         vendor_name=vendor_name, vendor_email=vendor_email,expires_in=expires_in).save()
                 info='Product has been added successfully'
-                return render(request, "index.html", {"alert": "added_success","info":info, "get_data": Products.objects.all()})
+                return render(request, "index.html", {"updated":"added","alert": "added_success","info":info, "get_data": Products.objects.all()})
 
     return render(request, "index.html",{"get_data":Products.objects.all()})
 
@@ -274,7 +274,7 @@ def edit_products(request,id,param):
                 obj.save()
 
                 info="Product has been updated successfully"
-                return render(request, "index.html", {"alert":"updated_success","info": info, "get_data": Products.objects.all()})
+                return render(request, "index.html", {"updated":"updated","alert":"updated_success","info": info, "get_data": Products.objects.all()})
         else:
             return render(request,"index.html",{"get_data":Products.objects.all()})
 
@@ -418,7 +418,7 @@ def add_certificate(request):
                 Certificates.objects.create(name=product, sdate=sdate, edate=edate,price=price,auto_renew=auto_renew,
                                         expires_in=expires_in).save()
                 info='Certificate has been added successfully'
-                return render(request, "certificate.html", {"alert": "added_success","info":info, "get_data": Certificates.objects.all()})
+                return render(request, "certificate.html", {"updated":"added","alert": "added_success","info":info, "get_data": Certificates.objects.all()})
 
     return render(request, "certificate.html",{"get_data":Certificates.objects.all()})
 
@@ -509,7 +509,7 @@ def edit_certificate(request,id,param):
                 obj.name,obj.sdate,obj.edate,obj.auto_renew,obj.price,obj.expires_in=product, sdate,edate,auto_renew,price,difference
                 obj.save()
                 info="Certificate has been updated successfully"
-                return render(request, "certificate.html", {"alert":"updated_success","info": info, "get_data": Certificates.objects.all()})
+                return render(request, "certificate.html", {"updated":"updated","alert":"updated_success","info": info, "get_data": Certificates.objects.all()})
         else:
             return render(request,"certificate.html",{"get_data":Certificates.objects.all()})
 

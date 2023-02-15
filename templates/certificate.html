@@ -499,6 +499,9 @@
 
     </div>
   </div>
+    <!-- update successs data -->
+    <div style="display: none;" id="update_success">{{updated}}</div>
+    <!-- update successs data -->
                 <!-- J A V A S C R I P T -->
 
   {% block js %}
@@ -608,6 +611,23 @@ if(open_edit_modal=="invalid_cred"){
   }
 })
 // trigerring login modal if invalid credentials ends here
+
+//  removing update endpoint from url starts here
+var update_success = document.getElementById("update_success").innerText;
+if (update_success=="updated"){
+  var currentUrl = window.location.href;
+  currentUrl_list=currentUrl.split("edit")
+  console.log(currentUrl_list)
+  var newUrl = currentUrl.replace('certificate/edit'+currentUrl_list[1], 'certificates');
+  window.history.pushState(null, null, newUrl);
+}
+
+else if (update_success=="added"){
+  var currentUrl = window.location.href;
+  var newUrl = currentUrl.replace('/add_certificate', '/certificates');
+  window.history.pushState(null, null, newUrl);
+}
+//  removing update endpoint from url ends here
 
   </script>
   {% endblock %}
