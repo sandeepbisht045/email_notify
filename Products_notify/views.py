@@ -27,9 +27,12 @@ def mail_send(request):
             elif difference<0:
                     prod_lst.append(f"{i.name} expired")
         if prod_lst:
-            htmlgen = f"<h3> Your purchased products will expire as mentioned below : </h3> <br>"
+            htmlgen = f"<p>Dear Customer,We hope this email finds you well! We're writing to inform you that one or more of the products<br> <span>you purchased are about to expire soon.</span></p> <br>"
+            htmlgen += f"<h3 style='color:black;'> Your purchased products will expire as mentioned below : </h3> <br>"
+            htmlgen += f"<div style='text-align: center;'><table style='width:70%;border-right:1px solid black;border-left:1px solid black; border-top:1px solid black;'>"
             for i in prod_lst:
-                htmlgen += f"<ul><list><b> {i}</b></list> </ul><br>"
+                htmlgen += f"<tr><td style='border-bottom:1px solid black;color:black;'>{i}</td></tr>"
+            htmlgen += f"</table></div><br><p style='color:black;'>We recommend that you use these products before their expiration dates to ensure their quality and effectiveness.Thank you for using this alert service. We value your business and look forward to serving you again in the future.</p><br><p style='color:black;'>Regards,</p>"
             lst=[]
             emails=Subscribe.objects.filter(status=1)
             if not emails:
