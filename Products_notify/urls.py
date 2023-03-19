@@ -28,7 +28,7 @@ urlpatterns = [
     path("certificate/edit/<int:id>/<str:param>",views.edit_certificate,name="edit_certificate"),
     path("mail_send_certificate",views.mail_send_certificate,name="mail_send_certificate"),
     path("certificate/subscribe",views.subscribe_certificate,name="subscribe_certificate"),
-
+# these are the urls pattern
 
 
 
