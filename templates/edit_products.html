@@ -1,0 +1,74 @@
+{% extends "index.html" %}
+{% block title%}Edit Products{% endblock %}
+{%block body%}
+{%if alert%}
+  <div class="row"id="warning_alert"><div class="col-md-4" ></div>
+  <div class="alert alert-primary text-center col-md-4  " role="alert" style="background-color: rgb(118, 101, 179); color: white;">
+    <b>{{alert}}</b>
+  </div>
+</div>
+{%endif%}
+<div class="container" style="border-radius: 20px;padding-top: 50px; background-image: linear-gradient(#e2a453 ,#e00f6a);">
+    <div class="row">
+        <div class="col-md-4">
+        </div>
+        <div class="col-md-4">
+            <form method="post" action="/edit/{{get_data.id}}" autocomplete="off">
+                {%csrf_token%}
+                <div class="form-group">
+                  <label for="exampleInputEmail1"><b>Product Name</b> </label>
+                  <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-4" id="pname" required minlength="4" placeholder="Enter Product" name="product" value="{{get_data.name}}">
+                   </div>
+                   <div class="form-group">
+                    <label for="exampleInputEmail1"><b>Vendor Name</b> </label>
+                    <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-4" id="pname" required minlength="4" placeholder="Enter Product" name="vendor_name" value="{{get_data.vendor_name}}">
+                     </div>
+                     <div class="form-group">
+                      <label for="exampleInputEmail1"><b>Vendor Email</b> </label>
+                      <input type="email" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-4" id="pname" required minlength="4" placeholder="Enter Product" name="vendor_email" value="{{get_data.vendor_email}}">
+                       </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1"><b>License Date</b> </label>
+                  <input type="date" class="form-control mb-4" id="license_date"  name="license_date" required value="{{get_data.sdate|date:"Y-m-d"}}">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1"> <b>Expiry Date</b></label>
+                    <input type="date" class="form-control" id="expiry_date"  name="expiry_date" required value="{{get_data.edate|date:"Y-m-d"}}">
+                  </div>
+
+                  <div class="form-group ml-4 mt-4">
+                    <label style="display: block;" for="exampleInputPassword1"> <b>Payment Mode</b></label>
+                    <select style="width: 100%;height:37px" required name="payment_mode" id="exampleInputPassword1">
+                      {% if get_data.payment_mode == c%}
+                      <option selected value="Credit Card">Credit Card</option>
+                      <option value="Agreement">Agreement</option>
+                      <option value="Purchase Order">Purchase Order</option>
+                      {% elif get_data.payment_mode == a%}
+                      <option selected value="Agreement">Agreement</option>
+                      <option value="Credit Card">Credit Card</option>
+                      <option value="Purchase Order">Purchase Order</option>
+                      {% elif get_data.payment_mode == p%}
+                      <option value="Agreement">Agreement</option>
+                      <option value="Credit Card">Credit Card</option>
+                      <option selected value="Purchase Order">Purchase Order</option>
+                      {% endif %}
+                    </select>
+                  </div>
+
+                  <input type="hidden" value="update" name="type" style="display:none">
+                <button type="submit" class="btn btn-primary mt-4 mb-2"><b>Update Product</b></button>
+              </form>
+              
+        </div>
+    </div>
+</div>
+<script>
+  var warning_alert=document.getElementById("warning_alert");
+  setTimeout(
+    function x(){
+warning_alert.style.display="none";
+    },3000
+  )
+</script>
+{%endblock%}
+

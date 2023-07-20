@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>Go to</title>
+    <style>
+    .decor{
+      font-size: 17px;color: black;border-radius: 8px;font-weight: 449;color: white;}
+      .combine{font-weight: bold;}
+      .glow-on-hover {
+    /* width: 220px; */
+    /* height: 50px; */
+    border: none;
+    outline: none;
+    color: #fff;
+    background: #1c2824;
+    cursor: pointer;
+    position: relative;
+    z-index: 0;
+    border-radius: 10px;
+}
+
+.glow-on-hover:before {
+    content: '';
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    position: absolute;
+    top: -2px;
+    left:-2px;
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(5px);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    animation: glowing 20s linear infinite;
+    opacity: 0;
+    transition: opacity .3s ease-in-out;
+    border-radius: 10px;
+}
+
+.glow-on-hover:active {
+    color: #000
+}
+
+.glow-on-hover:active:after {
+    background: transparent;
+}
+
+.glow-on-hover:hover:before {
+    opacity: 1;
+}
+
+.glow-on-hover:after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+    /* width: 100%; */
+    /* height: 100%; */
+    background: #111;
+    left: 0;
+    top: 0;
+    border-radius: 10px;
+}
+
+@keyframes glowing {
+    0% { background-position: 0 0; }
+    50% { background-position: 400% 0; }
+    100% { background-position: 0 0; }
+}
+    
+    </style>
+  </head>
+  <body style="background-color: #DFE5E3;">
+    <div class="container" style="margin-top: 10%;max-width: 60%;min-height: 500px;">
+      <div class="row" style="min-height: 100px;">
+        <a class="col-md-5 text-center decor glow-on-hover combine" href="" style="padding: 25px;display: block;text-decoration: none;border: 3px solid black;margin-top: 3%;max-width: 250px;min-height: 50%;">
+          Freecharge Access App
+        </a>
+        <div class="col-md-7 decor glow-on-hover"  id="alert"  style="cursor: pointer;padding: 25px;display: block;text-decoration: none;border: 3px solid black;margin-top: 3%;max-width: 350px;min-height: 50%;margin-left: 100px;">
+            Alerts of Domain/Certificate/Product
+          </div>
+      </div>
+      <div class="row" id="attach" style="display: none;min-height: 100px;margin-top: 100px;">
+        <a class="col-md-5 text-center decor glow-on-hover combine "  style="padding: 25px; display: block;text-decoration: none;border: 3px solid black;margin-top: 3%;max-width: 250px;min-height: 50%;">
+          Certificate
+        </a>
+        <a class="col-md-5 text-center decor glow-on-hover combine" href="/certificates"  style="padding: 25px;display: block;text-decoration: none;border: 3px solid black;margin-top: 3%;max-width: 250px;min-height: 50%;margin-left: 100px;">
+            Domain
+          </a>
+          <a class="col-md-5 mt-5 text-center decor glow-on-hover combine " href="/tabular" style="padding: 25px;display: block;text-decoration: none;border: 3px solid black;margin-top: 3%;max-width: 250px;min-height: 50%;margin-left: 100px;">
+            Product
+          </a>
+      </div>
+    </div>
+   <script>
+    document.getElementById('alert').addEventListener("click", myFunction)
+    function myFunction() {
+  var elem=document.getElementById("attach");
+  console.log('element',elem)
+  if(elem.style.display=='none'){elem.style.display=''}
+  else if(elem.style.display==''){elem.style.display='none'}
+}
+   </script>
+
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+  
+  </body>
+</html>
