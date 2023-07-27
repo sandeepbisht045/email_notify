@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
   
-  <title>{% block title%}Home{% endblock %}</title>
+  <title>{% block title%}Domains{% endblock %}</title>
   {% load static %}
   <link rel="stylesheet" href="{% static 'nav.css' %}">
   <style>
@@ -132,47 +132,42 @@
             <table class="table">
                 <thead>
                   <tr>
-                    <th scope="col">ProductName</th>
-                    <th scope="col">VendorName</th>
-                    <th scope="col">VendorEmail</th>
+                    <th scope="col">DomainName</th>
                     <th scope="col">License</th>
                     <th scope="col">Expiry</th>
-                    <th scope="col">Payment</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">AutoRenew</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Product1</td>
-                    <td>Vendor1</td>
-                    <td>vendor1@gmail.com</td>
+                    <td>Domain1</td>
                     <td>20-09-2023</td>
                     <td>28-09-2023</td>
-                    <td>Credit Card</td>
+                    <td>700</td>
+                    <td>On</td>
                   </tr>
 
                   <tr>
-                    <td>Product2</td>
-                    <td>Vendor2</td>
-                    <td>vendor2@gmail.com</td>
-                    <td>21-09-2023</td>
-                    <td>29-10-2023</td>
-                    <td>Purchase Order</td>
-                  </tr> 
-                   <tr>
-                    <td>Product3</td>
-                    <td>Vendor3</td>
-                    <td>vendor3@gmail.com</td>
-                    <td>11-09-2023</td>
-                    <td>28-11-2023</td>
-                    <td>Agreement</td>
+                    <td>Domain2</td>
+                    <td>20-09-2023</td>
+                    <td>28-09-2023</td>
+                    <td>1700</td>
+                    <td>Off</td>
                   </tr>
                   <tr>
-                    <td>Product4</td>
-                    <td>Vendor4</td>
-                    <td>vendor4@gmail.com</td>
-                    <td>01-09-2023</td>
-                    <td>28-09-2023</td>
-                    <td>Agreement</td>
+                    <td>Domain3</td>
+                    <td>21-09-2023</td>
+                    <td>29-09-2023</td>
+                    <td>2700</td>
+                    <td>On</td>
+                  </tr>
+                  <tr>
+                    <td>Domain4</td>
+                    <td>20-10-2023</td>
+                    <td>28-11-2023</td>
+                    <td>2700</td>
+                    <td>Off</td>
                   </tr>
                                  </tbody>
               </table>
@@ -190,25 +185,18 @@
     <div class="modal-dialog ">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Add Product Here</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Add Domain Here</h5>
           <button id="close" onclick="redirect()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <!-- add product form starts -->
-            <form method="post" action="/add_products" autocomplete="off" id="form_add_products">
+            <form method="post" action="/add_domain" autocomplete="off" id="form_add_products">
               {%csrf_token%}
               <div class="form-group">
-                <label for="exampleInputEmail1"><b>Product Name</b> </label>
+                <label for="exampleInputEmail1"><b>Domain Name</b> </label>
                 <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname1" required minlength="4" placeholder="Enter Product" name="product" value="{{product}}">
                  </div>
-                 <div class="form-group">
-                  <label for="exampleInputEmail1"><b>Vendor Name</b> </label>
-                  <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname2" required minlength="4" placeholder="Enter Product" name="vendor_name" value="{{vendor_name}}">
-                   </div>
-                   <div class="form-group">
-                    <label for="exampleInputEmail1"><b>Vendor Email</b> </label>
-                    <input type="email" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname3" required minlength="4" placeholder="Enter Product" name="vendor_email" value="{{vendor_email}}">
-                     </div>
+               
               <div class="form-group">
                 <label for="exampleInputPassword1"><b>License Date</b> </label>
                 <input type="date" class="form-control mb-2" id="license_date"  name="license_date" required value="{{sdate|date:"Y-m-d"}}">
@@ -217,18 +205,21 @@
                   <label for="exampleInputPassword1"> <b>Expiry Date</b></label>
                   <input type="date" class="form-control mb-2" id="expiry_date"  name="expiry_date" required value="{{edate|date:"Y-m-d"}}">
                 </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1"> <b>Price</b></label>
+                    <input onBlur="if(isNaN(Number(this.value.trim()))) {this.value = ''}" type="text" class="form-control mb-2" id="price"  name="price" required value="{{price}}">
+                  </div>
 
                 <div class="form-group">
-                  <label style="display: block;" for="exampleInputPassword1"> <b>Payment Mode</b></label>
-                  <select style="width: 100%;height:37px" required name="payment_mode" id="exampleInputPassword1">
+                  <label style="display: block;" for="exampleInputPassword1"> <b>Auto-Renew</b></label>
+                  <select style="width: 100%;height:37px" required name="auto_renew" id="exampleInputPassword1">
                     <option disabled selected value="">Select</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Agreement">Agreement</option>
-                    <option value="Purchase Order">Purchase Order</option>
+                    <option value="on">On</option>
+                    <option value="off">Off</option>
                   </select>
                 </div>
             
-              <button type="submit" class="btn btn-primary mt-4 mb-2"><b>Add Product</b></button>
+              <button type="submit" class="btn btn-primary mt-4 mb-2"><b>Add Domain</b></button>
             </form>
             <!-- add product form ends -->
         </div>
@@ -245,25 +236,25 @@
     <div class="modal-dialog ">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Update Product</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Update Domain</h5>
           <button id="close" onclick="redirect()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <!-- edit product form starts -->
-            <form method="post" action="/edit/{{id}}/update" autocomplete="off">
+            <form method="post" action="/domain/edit/{{id}}/update" autocomplete="off">
               {%csrf_token%}
               <div class="form-group">
-                <label for="exampleInputEmail1"><b>Product Name</b> </label>
+                <label for="exampleInputEmail1"><b>Domain Name</b> </label>
                 <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname4" required minlength="4" placeholder="Enter Product" name="product" value="{{product}}">
                  </div>
-                 <div class="form-group">
+                 <!-- <div class="form-group">
                   <label for="exampleInputEmail1"><b>Vendor Name</b> </label>
                   <input type="text" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname5" required minlength="4" placeholder="Enter Product" name="vendor_name" value="{{vendor_name}}">
                    </div>
                    <div class="form-group">
                     <label for="exampleInputEmail1"><b>Vendor Email</b> </label>
                     <input type="email" onBlur="if(this.value.trim() == '') {this.value = ''}" class="form-control mb-2" id="pname6" required minlength="4" placeholder="Enter Product" name="vendor_email" value="{{vendor_email}}">
-                     </div>
+                     </div> -->
               <div class="form-group">
                 <label for="exampleInputPassword1"><b>License Date</b> </label>
                 <input type="date" class="form-control mb-2" id="license_date"  name="license_date" required value="{{sdate|date:"Y-m-d"}}">
@@ -272,22 +263,20 @@
                   <label for="exampleInputPassword1"> <b>Expiry Date</b></label>
                   <input type="date" class="form-control" id="expiry_date"  name="expiry_date" required value="{{edate|date:"Y-m-d"}}">
                 </div>
-
+                <div class="form-group">
+                    <label for="exampleInputPassword1"> <b>Price</b></label>
+                    <input onBlur="if(isNaN(Number(this.value.trim()))) {this.value = ''}" type="text" class="form-control mb-2" id="price"  name="price" required value="{{price}}">
+                  </div>
                 <div class="form-group ml-4 mt-2">
-                  <label style="display: block;" for="exampleInputPassword1"> <b>Payment Mode</b></label>
-                  <select style="width: 100%;height:37px" required name="payment_mode" id="exampleInputPassword1">
-                    {% if payment_mode == c%}
-                    <option selected value="Credit Card">Credit Card</option>
-                    <option value="Agreement">Agreement</option>
-                    <option value="Purchase Order">Purchase Order</option>
-                    {% elif payment_mode == a%}
-                    <option selected value="Agreement">Agreement</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Purchase Order">Purchase Order</option>
-                    {% elif payment_mode == p%}
-                    <option value="Agreement">Agreement</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option selected value="Purchase Order">Purchase Order</option>
+                  <label style="display: block;" for="exampleInputPassword1"> <b>Auto_Renew</b></label>
+                  <select style="width: 100%;height:37px" required name="auto_renew" id="exampleInputPassword1">
+                    {% if auto_renew == 'on'%}
+                    <option selected value="on">On</option>
+                    <option value="off">Off</option>
+                    {% elif auto_renew == 'off'%}
+                    <option selected value="off">Off</option>
+                    <option value=" on">On</option>
+                   
                     {% endif %}
                   </select>
                 </div>
@@ -316,7 +305,7 @@
         </div>
         <div class="modal-body">
             <!-- login form starts -->
-            <form method="post" action="/login" autocomplete="off">
+            <form method="post" action="{% url 'login_domain' %}" autocomplete="off">
               {%csrf_token%}
               <div class="form-group">
                 <label for="exampleInputEmail1"><b>Email address</b></label>
@@ -351,20 +340,20 @@
       <a id="prod" class="navbar-brand icon-color" href="/"><b style="color: white;">Home</b></a>
       {%if request.session.id%}
       <button style="background-color: #042354;border:0px " id="trigger_add_products_btn" type="button" class="navbar-brand icon-color" data-bs-toggle="modal" data-bs-target="#add_products">
-        <b style="color: white;">Add Products</b></button>
+        <b style="color: white;">Add Domain</b></button>
 <!-- today -->
-<div class="col-md-5"><form autocomplete="off" action="/subscribe" method="post">{%csrf_token%}<input required  
+<div class="col-md-5"><form autocomplete="off" action="{% url 'subscribe_domain' %}" method="post">{%csrf_token%}<input required  
   placeholder="Enter Email for Alert" style="width: 40%;display: inline; border-radius: 7px;background:wheat;border: 2px solid white;" 
-  type="email" name="email" class="m-2  "><button style="padding: 4px; color: white;
+  type="email" name="email" class="m-2  "><button  style="padding: 4px; color: white;
    background:transparent; border-radius: 0.25remn; border: transparent;" type="submit"  >
    <span id="subscribe" style="font-weight: bold;border: 1px solid green;color:white;font-size:small;padding: 10px;">
     Subscribe/Unsubscribe</span></form></div>
     {%endif%}
-    <div class="col-md-4"><form autocomplete="off" action="/search" method="get"><input required  placeholder="Search Products" style="width: 35%;display: inline; border-radius: 10px;background: wheat; " type="text" name="search" class="m-2 "><input id="search" style="padding: 4px; color: white; background: transparent; border-radius: 10px; border: 1px solid green; padding-left: 5px;padding-right: 5px;" type="submit" value="Search"></form></div></div>
+    <div class="col-md-4"><form autocomplete="off" action="{% url 'search_domain' %}" method="get"><input required  placeholder="Search Domain" style="width: 35%;display: inline; border-radius: 10px;background: wheat; " type="text" name="search" class="m-2 "><input id="search" style="padding: 4px; color: white; background: transparent; border-radius: 10px; border: 1px solid green; padding-left: 5px;padding-right: 5px;" type="submit" value="Search"></form></div></div>
 
 <!-- today -->
       {%if request.session.id%}
-      <a id="auth"  class="navbar-brand icon-color" href="/logout"><b style="color: white;">Logout</b></a>
+      <a id="auth"  class="navbar-brand icon-color" href="domain/logout"><b style="color: white;">Logout</b></a>
 
       {%else%}
       <!-- <a id="auth" class="navbar-brand icon-color" href="/login"><b style="color: white;">Login</b></a> -->
@@ -400,11 +389,11 @@
       
       <div class="row ">
       {%if request.session.id%}
-      <div class="col_md-5 mb-2 text-center"><a class="btn btn-primary" href="/export">Export CSV</a></div>
-      <form action="/import" method="post" enctype="multipart/form-data" class="text-center m-4">
+      <div class="col_md-5 mb-2 text-center"><a class="btn btn-primary" href="{% url 'export_domain' %}">Export CSV</a></div>
+      <form action="domain/import" method="post" enctype="multipart/form-data" class="text-center m-4">
         {%csrf_token%}
-        <input required id="import_csv" type="file" onchange="return fileValidation()" name="import" style="display: none; ">
-        <label class="m-2" for="import_csv" style="border: 2px solid black">Choose File</label>
+        <input required id="import_csv_domain" type="file" onchange="return fileValidation()" name="import_domain" style="display: none; ">
+        <label class="m-2" for="import_csv_domain" style="border: 2px solid black">Choose File</label>
         <button type="submit" class="btn btn-success" >Upload</button>
         <a  href="#exampleModal" id="sample" class="text-center m-2" data-bs-toggle="modal" data-bs-target="#exampleModal">Click for Sample File</a>
       </form>  
@@ -421,53 +410,62 @@
           <option value="expired">Expired</option>
           <option value="active">Active</option>
           {% else %}
-          <!-- {% if filter_selected == "latest" %}
-          <option selected value="latest">Added Latest</option>
-          <option value="earliest">Added Earliest</option>
+          {% if filter_selected == "latest" %}
+          <!-- <option selected value="latest">Added Latest</option>
+          <option value="earliest">Added Earliest</option> -->
           <option value="expired">Expired</option>
           <option value="active">Active</option>
 
           {% elif filter_selected == "earliest" %}
-          <option  value="latest">Added Latest</option>
-          <option selected value="earliest">Added Earliest</option>
+          <!-- <option  value="latest">Added Latest</option>
+          <option selected value="earliest">Added Earliest</option> -->
           <option value="expired">Expired</option>
-          <option value="active">Active</option> -->
+          <option value="active">Active</option>
 
           {% elif filter_selected == "active" %}
-          <!-- <option  value="latest">Added Latest</option> -->
-          <!-- <option  value="earliest">Added Earliest</option> -->
+          <!-- <option  value="latest">Added Latest</option>
+          <option  value="earliest">Added Earliest</option> -->
           <option value="expired">Expired</option>
           <option selected value="active">Active</option>
 
           {% elif filter_selected == "expired" %}
-          <!-- <option  value="latest">Added Latest</option> -->
-          <!-- <option  value="earliest">Added Earliest</option> -->
+          <!-- <option  value="latest">Added Latest</option>
+          <option  value="earliest">Added Earliest</option> -->
           <option selected value="expired">Expired</option>
           <option value="active">Active</option>
           {%endif%}
           {%endif%}
         </select>
       </div>
-
-      
+                  {% if row_error %}
+        <div class="alert alert-danger alert-dismissible fade show mt-4 " role="alert" style="max-width:70%;margin:auto;overflow: hidden;word-wrap: break-word;">
+          Row no. {{row_error}} in your imported csv didn't upload as it contain some errors.Please check
+          <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% else %}<div class="mt-4"></div>
+        {% endif %}
+<div class="text-center mt-5 text-primary lead fw-bold" style="display: none;" id="no_domain">No Domains to display</div>
       <!-- <div class="col-sm-4 ml-1"> -->
-<div class="text-center mt-5 text-primary lead fw-bold" style="display: none;" id="no_products">No Products to display</div>
-
-        <table id="table_products" data-products="{{get_data}}" class="mt-4 table table-hover table-bordered border-dark">
+        <table id="table_domain" data-domain="{{get_data}}" class="mt-4 table table-hover table-bordered border-dark">
           <thead>
             <tr>
               <!-- <th scope="col">{{forloop.counter}}</th> -->
               <th scope="col">#</th>
-              <th scope="col">Product</th>
-              <th scope="col">Vendor</th>
-              <th scope="col">Email</th>
+              <th scope="col">Domain</th>
+              <!-- <th scope="col">Vendor</th> -->
+              <!-- <th scope="col">Email</th> -->
               <th scope="col">License</th>
               <th scope="col">Expires on</th>
               <th scope="col">Status</th>
-              <th scope="col">Payment</th>
+              <th scope="col">Price</th>
+              <th scope="col">Auto-Renew</th>
             </tr>
           </thead>
+
           <tbody>
+
             {% for i in get_data %}
             <tr>
               <th id="pay" scope="row">
@@ -480,8 +478,8 @@
                 {%endif%}
               </th>
               <td>{{i.name|title}}</td>
-              <td>{{ i.vendor_name|title }}</td>
-              <td>{{ i.vendor_email|truncatechars:200}}</td>
+              <!-- <td>{{ i.vendor_name|title }}</td>
+              <td>{{ i.vendor_email|truncatechars:200}}</td> -->
               <td>{{i.sdate|date:"d-m-Y"}}</td>
               <td>{{i.edate|date:"d-m-Y"}}</td>
               
@@ -490,20 +488,24 @@
               {%else%}
               <td style="color: red;">Expired</td>
               {%endif%}
-              <td>{{i.payment_mode}}</td>
-
+              <td>Rs. {{i.price}}</td>
+                
+              {%if i.auto_renew == 0 %}
+              <td style="color: red">Off</td>
+              {%else%}
+              <td style="color: green;">On</td>
+              {%endif%}
             </tr>
            
           </tbody>
           {% endfor %}
         </table>
 
-
     </div>
   </div>
-  <!-- update successs data -->
-  <div style="display: none;" id="update_success">{{updated}}</div>
-  <!-- update successs data -->
+    <!-- update successs data -->
+    <div style="display: none;" id="update_success">{{updated}}</div>
+    <!-- update successs data -->
                 <!-- J A V A S C R I P T -->
 
   {% block js %}
@@ -519,7 +521,7 @@
     var del_data=arg.getAttribute("data-del");
 
       if (confirm("Are you sure you want to delete?")) {
-        var url="/delete/"+del_data
+        var url="/domain/delete/"+del_data
         location.replace(url)
       }
     }
@@ -530,15 +532,15 @@
     function f(e){
       if(e.value=="latest"){location.replace("/tabular/"+e.value)}
       else if(e.value=="earliest"){location.replace("/tabular/"+e.value)}
-      else if(e.value=="expired"){location.replace("/tabular/"+e.value)}
-      else if(e.value=="active"){location.replace("/tabular/"+e.value)}
+      else if(e.value=="expired"){location.replace("/domains/"+e.value)}
+      else if(e.value=="active"){location.replace("/domains/"+e.value)}
     }
     // function for sending filter option value to server ends
 
     // file validation for csv starts
     function fileValidation() {
             var fileInput =
-                document.getElementById('import_csv');
+                document.getElementById('import_csv_domain');
             var filePath = fileInput.value;
          
             // Allowing file type
@@ -591,7 +593,7 @@ $("#toast").fadeOut(7000);
 function edit_modal_open(argv){
 edit_id=argv.getAttribute("data-edit");
 edit_param=argv.getAttribute("data-param");
-location.replace("/edit/"+edit_id+"/"+edit_param)
+location.replace("/domain/edit/"+edit_id+"/"+edit_param)
 }
 // function  to pass edit product id to server end here
 
@@ -619,21 +621,23 @@ var update_success = document.getElementById("update_success").innerText;
 if (update_success=="updated"){
   var currentUrl = window.location.href;
   currentUrl_list=currentUrl.split("edit")
-  var newUrl = currentUrl.replace('/edit'+currentUrl_list[1], '/tabular');
+  console.log(currentUrl_list)
+  var newUrl = currentUrl.replace('domain/edit'+currentUrl_list[1], 'domain');
   window.history.pushState(null, null, newUrl);
 }
+
 else if (update_success=="added"){
   var currentUrl = window.location.href;
-  var newUrl = currentUrl.replace('/add_products', '/tabular');
+  var newUrl = currentUrl.replace('/add_domain', '/domains');
   window.history.pushState(null, null, newUrl);
 }
 //  removing update endpoint from url ends here
 
 // toggling display of table
-var data_table=document.getElementById("table_products").getAttribute("data-products");
+var data_table=document.getElementById("table_domain").getAttribute("data-domain");
 if(data_table.charAt(11)==']'){
-  document.getElementById("table_products").style.display='none'
-  document.getElementById("no_products").style.display='block'
+  document.getElementById("table_domain").style.display='none'
+  document.getElementById("no_domain").style.display='block'
 }
   </script>
   {% endblock %}

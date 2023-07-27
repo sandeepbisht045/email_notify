@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Products, User,Subscribe,Certificates
+from .models import Products, User,Subscribe,Certificates,Domains
 import datetime,csv,os
 from django.core.mail import send_mail
 import pandas as pd
@@ -281,7 +281,6 @@ def edit_products(request,id,param):
         else:
             return render(request,"index.html",{"get_data":Products.objects.all()})
 
-    # return render(request, "edit_products.html")
 
 
 def import_file(request):
@@ -377,7 +376,7 @@ def login_certificate(request):
 def logout_certificate(request):
     if request.session.get("id"):
         request.session.clear()
-        return redirect("/certificate")
+        return redirect("/certificates")
     return redirect("/certificates")
 
 def search_certificate(request):
@@ -616,7 +615,6 @@ def import_certificate(request):
 
                 if license_date and expiry_date:
                     if (license_date-cur_date).days > 0 or (expiry_date-license_date).days < 0  or renew_avl == 'invalid':
-                        # print('continueeeeeeeeeeee')
                         error_rows.append(str(dbframe.Index+2))
                         continue
                     try:
@@ -626,9 +624,313 @@ def import_certificate(request):
                     except:
                         error_rows.append(str(dbframe.Index+2))
             # Certificates.objects.all().delete()
-            error_rows = ','.join(list(set(error_rows)).sorted()) if error_rows else ''
+            error_rows = ','.join(sorted(list(set(error_rows)))) if error_rows else ''
             return redirect(f"/certificates?data={error_rows}")
         return redirect(f"/certificates?data={error_rows}")
     except:
-        error_rows = ','.join(list(set(error_rows)).sorted()) if error_rows else ''
+        error_rows = ','.join(sorted(list(set(error_rows)))) if error_rows else ''
         return redirect(f"/certificates?data={error_rows}")
+#                 
+                                   #  D  O  M  A  I  N  S
+def domain(request,filter_=None):
+
+    get_data = Domains.objects.all()
+    filter_selected=""
+    if filter_:
+        # if filter_=="latest":
+        #     get_data = Domains.objects.all().order_by('-id')
+        # elif filter_=="earliest":
+        #     get_data = Domains.objects.all()
+        if filter_=="expired":
+            get_data = Domains.objects.filter(expires_in__lt=0)
+        elif filter_=="active":
+            get_data = Domains.objects.filter(expires_in__gte=0)
+        filter_selected=filter_
+    if get_data:
+        for i in get_data:
+            difference = (i.edate-cur_date).days
+            i.expires_in=difference
+            i.save()       
+    
+    return render(request, "domain.html", {"get_data": get_data,"filter_selected":filter_selected,
+                                        'row_error':request.GET.get('data')})
+
+def delete_domain(request,id):
+    if request.session.get("id"):
+        try:
+            data = Domains.objects.get(id=id)
+            data.delete()
+            return redirect("/domains")
+
+        except:
+            return redirect("/domains")
+        
+    else:
+        return render(request, "domain.html", {"alert": "Login first to delete"})
+
+def login_domain(request):
+    info=""
+    if not request.session.get("id"):
+        if request.method == "POST":
+            email = request.POST.get("email")
+            password = request.POST.get("password")
+            filter_data = User.objects.filter(email=email, password=password).first()
+            if filter_data:
+                request.session["id"] = filter_data.id
+                return redirect("/domains")
+            else:
+                info="Invalid email or password"
+                return render(request, "domain.html", {"open_edit_modal":"invalid_cred","alert":"invalid","info": info,"email":email,"get_data":Domains.objects.all()})
+        return redirect("/domains")
+    return redirect("/domains")
+
+def logout_domain(request):
+    if request.session.get("id"):
+        request.session.clear()
+        return redirect("/domains")
+    return redirect("/domains")
+
+def search_domain(request):
+    search = request.GET.get("search").strip().lower()
+    if search:
+        query=Domains.objects.filter(name__icontains=search)
+        if query:
+            for i in query:
+                difference = (i.edate-cur_date).days
+                i.expires_in=difference
+                i.save()       
+            return render(request,"domain.html",{"get_data":query})
+        else:
+             return redirect("/domains")
+
+def add_domain(request):
+    if not request.session.get("id"):
+        info="Please login first to add domain"
+        return render(request, "domain.html", {"alert": "login_first","info":info,"get_data":Domains.objects.all()})
+    if request.method == "POST":
+            info=''
+            product = request.POST.get("product")
+            license_date = request.POST.get("license_date")
+            expiry_date = request.POST.get("expiry_date")
+            auto_renew=request.POST.get("auto_renew")
+            auto_renew= 0 if auto_renew=='off' else 1
+            price=request.POST.get("price")
+
+            
+            sdate=datetime.datetime.strptime(license_date,'%Y-%m-%d').date()
+            edate=datetime.datetime.strptime(expiry_date,'%Y-%m-%d').date()
+           
+            if(sdate-cur_date).days > 0:
+                info='Domain purchased date cannot be greater than current date'
+                return render(request, "domain.html", {"alert": "pd_g_cd","open_modal":"open_modal","info":info, "product": product,"price":price, "sdate":sdate,"edate":edate,"get_data": Domains.objects.all()})
+            elif(edate-sdate).days < 0:
+                info='Domain purchased date cannot be greater than expiry date'
+                return render(request, "domain.html", {"alert": "pd_g_ed","open_modal":"open_modal","info":info, "product": product,"price":price, "sdate":sdate,"edate":edate,"get_data": Domains.objects.all()})
+            else:
+                expires_in = (edate-cur_date).days
+                Domains.objects.create(name=product, sdate=sdate, edate=edate,price=price,auto_renew=auto_renew,
+                                        expires_in=expires_in).save()
+                info='Domain has been added successfully'
+                return render(request, "domain.html", {"updated":"added","alert": "added_success","info":info, "get_data": Domains.objects.all()})
+
+    return render(request, "domain.html",{"get_data":Domains.objects.all()})
+
+
+def export_domain(request):
+    info=""
+    if request.session.get("id"):
+        prods=Domains.objects.all()
+        if not prods:
+            return redirect("/domains")
+        for i in prods:
+            difference = (i.edate-cur_date).days
+            i.expires_in=difference
+            i.save()   
+        response=HttpResponse(content_type="text/csv")
+        writer=csv.writer(response)
+        writer.writerow(["Domain Name","License Date","Expiry Date","Auto_Renew","Price","Status"])
+        obj=Domains.objects.all().values_list("name","sdate","edate","auto_renew","price","expires_in")
+        for prod in obj:
+            prod=list(prod)
+            sdate=prod[len(prod)-5]
+            edate=prod[len(prod)-4]
+            auto_renew=prod[len(prod)-3]
+            prod[len(prod)-3]= 'on' if prod[len(prod)-3]==1 else 'off'
+            
+            prod[len(prod)-5]=f"{sdate.day}-{sdate.month}-{sdate.year}"
+            prod[len(prod)-4]=f"{edate.day}-{edate.month}-{edate.year}"
+            if int(prod[len(prod)-1])<0:
+                prod[len(prod)-1]="Expired"
+            else:
+                prod[len(prod)-1]="Active"
+            writer.writerow(prod)
+        response['Content-Disposition']='attachment;filename="Domain_Details.csv"'
+        return response
+    else:
+        info="Loin first to continue"
+        return render(request, "domain.html", {"alert": "login_first ","info":info,"get_data":prods})
+   
+def edit_domain(request,id,param):
+    info=''
+    if not request.session.get("id"):
+        info="Please login first to add domain"
+        return render(request, "domain.html", {"alert": "login_first","info":info})
+    try:
+        obj=Domains.objects.get(pk=id)
+    except:
+        info='Domains are not available'
+        return render(request, "domain.html", {"info":info,"alert":"not_available", "get_data": Domains.objects.all()})
+    if request.method == "GET":
+
+        if param == "edit":
+            obj.auto_renew= 'off' if obj.auto_renew==0 else 'on'
+
+            return render(request, "domain.html", {"id":obj.id,"product":obj.name,  
+            "sdate":obj.sdate,"edate":obj.edate,"auto_renew":obj.auto_renew,"on":"On",'price':obj.price
+            ,"off":"off","param":"edit","get_data":Domains.objects.all()})
+        else:
+            return redirect("/domains")
+    if request.method=='POST':
+        if param=="update":
+            product = request.POST.get("product")
+            license_date = request.POST.get("license_date")
+            expiry_date = request.POST.get("expiry_date")
+            price=request.POST.get("price")
+            auto_renew=request.POST.get("auto_renew")
+
+        
+            sdate=datetime.datetime.strptime(license_date,'%Y-%m-%d').date()
+            edate=datetime.datetime.strptime(expiry_date,'%Y-%m-%d').date()
+            dict_data={"open_edit_modal":"open_edit_modal","off":"Off"
+                ,"on":"On","id":obj.id,"product":product, 
+               "sdate":sdate,"edate":edate,"price":price,auto_renew:auto_renew,
+                "get_data": Domains.objects.all()}
+            if (sdate-cur_date).days > 0:
+                info="Domain purchased date cannot be greater than current date"
+                dict_data.update({"alert": "pd_g_cd","info":info})
+                return render(request, "domain.html", dict_data)
+            elif(edate-sdate).days < 0:
+                info="Domain purchased date cannot be greater than expiry date"
+                dict_data.update({"alert": "pd_g_ed","info":info})
+                return render(request, "domain.html", dict_data)
+    
+            else:
+                auto_renew= 0 if auto_renew=='off' else 1
+                difference = (edate-cur_date).days
+                obj.name,obj.sdate,obj.edate,obj.auto_renew,obj.price,obj.expires_in=product, sdate,edate,auto_renew,price,difference
+                obj.save()
+                info="Domain has been updated successfully"
+                return render(request, "domain.html", {"updated":"updated","alert":"updated_success","info": info, "get_data": Domains.objects.all()})
+        else:
+            return render(request,"domain.html",{"get_data":Domains.objects.all()})
+
+def mail_send_domain(request):
+    prod_lst = []
+    get_data = Domains.objects.all()
+    if get_data:
+        for i in get_data:
+            difference = (i.edate-cur_date).days
+            if difference <= 30 and difference > 0:
+                  prod_lst.append(f"{i.name} : {difference} days")
+            elif difference==0:
+                    prod_lst.append(f"{i.name} will expire today")
+            elif difference<0:
+                    prod_lst.append(f"{i.name} expired")
+        if prod_lst:
+            htmlgen = f"<h3> Your purchased domain will expire as mentioned below : </h3> <br>"
+            for i in prod_lst:
+                htmlgen += f"<ul><list><b> {i}</b></list> </ul><br>"
+            lst=[]
+            emails=Subscribe.objects.filter(status=1)
+            if not emails:
+                return HttpResponse("no emails subscribed")
+            for i in emails:
+                lst.append(i.email)
+
+            send_mail('Domain Expiry Alert', "", 'scan@freecharge.com',
+                      lst, fail_silently=False, html_message=htmlgen)
+
+            return HttpResponse("success")
+        else:
+            return HttpResponse("failed")
+    else:
+        return HttpResponse("Domains are not available in the db")
+
+def subscribe_domain(request):
+    info=""
+    if request.session.get("id"):
+        if request.method=="POST":
+            email = request.POST.get("email")
+            
+            subs=Subscribe.objects.filter(email=email).first()
+            if subs:
+                status=subs.status
+                if status==1:
+                    subs.status=0
+                    subs.save()
+                    info= "You have unsubscribed & won't get any alert regarding domains expiry in future"
+                    return render(request, "domain.html", {"info":info,"alert":"unsubscribed", "get_data": Domains.objects.all()})
+
+                else:
+                    subs.status=1
+                    subs.save()
+                    info= "You have subscribed successfully for email alert"
+                    return render(request, "domain.html", {"info":info, "get_data": Domains.objects.all(),"alert":"subscribed"})
+        
+            else:
+                Subscribe.objects.create(email=email).save()
+                info= "You have subscribed successfully for email alert"
+                return render(request, "domain.html", {"info":info, "get_data": Domains.objects.all(),"alert":"subscribed"})
+
+        else:
+            return redirect("/domains")
+    else:
+        info="Login first to continue"
+        return render(request, "domain.html", {"alert": "login_first ","info":info,"get_data": Domains.objects.all()})
+        
+
+def import_domain(request):
+    error_rows = []
+    try:
+        if request.method == 'POST' and request.FILES['import_domain']:
+
+            imported_file = request.FILES['import_domain']
+            fs = FileSystemStorage()
+            csv_file = fs.save('random.csv', imported_file)
+            uploaded_file_url = fs.url(csv_file)
+            
+            excel_file = uploaded_file_url
+            file_data = pd.read_csv("."+excel_file,encoding='utf-8')
+           
+            dbframe = file_data
+            dbframe.columns = dbframe.columns.str.strip()
+            os.remove(f"{BASE_DIR}/{uploaded_file_url}")
+            for dbframe in dbframe.itertuples():
+                license_date=datetime.datetime.strptime(dbframe.License.strip(), '%d-%m-%Y').date()
+                expiry_date=datetime.datetime.strptime(dbframe.Expiry.strip(), '%d-%m-%Y').date()
+                renew_avl = None        
+                try:
+                    if dbframe.AutoRenew.upper().strip() == 'ON':
+                        renew_avl = 1
+                    elif dbframe.AutoRenew.upper().strip() == 'OFF':
+                        renew_avl = 0
+                except:
+                    renew_avl = 'invalid'
+
+                if license_date and expiry_date:
+                    if (license_date-cur_date).days > 0 or (expiry_date-license_date).days < 0  or renew_avl == 'invalid':
+                        error_rows.append(str(dbframe.Index+2))
+                        continue
+                    try:
+                        new_obj=Domains.objects.create(name=dbframe.DomainName,sdate=license_date,edate=expiry_date,auto_renew=renew_avl,
+                        price=dbframe.Price)
+                        new_obj.save()
+                    except:
+                        error_rows.append(str(dbframe.Index+2))
+            # Domain.objects.all().delete()
+            error_rows = ','.join(sorted(list(set(error_rows)))) if error_rows else ''
+            return redirect(f"/domains?data={error_rows}")
+        return redirect(f"/domains?data={error_rows}")
+    except:
+        error_rows = ','.join(sorted(list(set(error_rows)))) if error_rows else ''
+        return redirect(f"/domains?data={error_rows}")

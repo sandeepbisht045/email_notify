@@ -16,7 +16,7 @@ urlpatterns = [
     path("tabular/<str:filter_>",views.tabular,name="tabular_filter"),
     path("edit/<int:id>/<str:param>",views.edit_products,name="edit_products"),
     path("",views.tabs,name="tabs"),
-    # ---------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------certificates------------------------------------------------------------------------------
     path("certificates/<str:filter_>",views.certificates,name="certificates"),
     path("certificates",views.certificates,name="certificates"),
     path("certificates/delete/<int:id>",views.delete_certificate,name="delete_certificate"),
@@ -29,6 +29,20 @@ urlpatterns = [
     path("mail_send_certificate",views.mail_send_certificate,name="mail_send_certificate"),
     path("certificate/subscribe",views.subscribe_certificate,name="subscribe_certificate"),
     path("certificate/import",views.import_certificate,name="import_certificate"),
+
+    # ---------------------------------------domains------------------------------------------------------------------------------
+    path("domains/<str:filter_>",views.domain,name="domains"),
+    path("domains",views.domain,name="domains"),
+    path("domain/delete/<int:id>",views.delete_domain,name="delete_domain"),
+    path("domain/user/login",views.login_domain,name="login_domain"),
+    path("domain/logout",views.logout_domain,name="logout_domain"),
+    path("domain/search",views.search_domain,name="search_domain"),
+    path("add_domain",views.add_domain,name="add_domain"),
+    path("domain/export",views.export_domain,name="export_domain"),
+    path("domain/edit/<int:id>/<str:param>",views.edit_domain,name="edit_domain"),
+    path("mail_send_domain",views.mail_send_domain,name="mail_send_domain"),
+    path("domain/subscribe",views.subscribe_domain,name="subscribe_domain"),
+    path("domain/import",views.import_domain,name="import_domain"),
 
 
 

@@ -43,3 +43,14 @@ class Subscribe(models.Model):
     status=models.IntegerField(default=1)
     def __str__(self):
         return self.email
+    
+class Domains(models.Model):
+    name=models.CharField(max_length=50)
+    sdate=models.DateField()
+    edate=models.DateField()
+    expires_in=models.IntegerField(default=0)
+    price=models.IntegerField(default=0)
+    auto_renew=models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name

@@ -349,7 +349,7 @@
    <span id="subscribe" style="font-weight: bold;border: 1px solid green;color:white;font-size:small;padding: 10px;">
     Subscribe/Unsubscribe</span></form></div>
     {%endif%}
-    <div class="col-md-4"><form autocomplete="off" action="{% url 'search_certificate' %}" method="get"><input required  placeholder="Search Domain" style="width: 35%;display: inline; border-radius: 10px;background: wheat; " type="text" name="search" class="m-2 "><input id="search" style="padding: 4px; color: white; background: transparent; border-radius: 10px; border: 1px solid green; padding-left: 5px;padding-right: 5px;" type="submit" value="Search"></form></div></div>
+    <div class="col-md-4"><form autocomplete="off" action="{% url 'search_certificate' %}" method="get"><input required  placeholder="Search Certificate" style="width: 35%;display: inline; border-radius: 10px;background: wheat; " type="text" name="search" class="m-2 "><input id="search" style="padding: 4px; color: white; background: transparent; border-radius: 10px; border: 1px solid green; padding-left: 5px;padding-right: 5px;" type="submit" value="Search"></form></div></div>
 
 <!-- today -->
       {%if request.session.id%}
@@ -438,7 +438,7 @@
         </select>
       </div>
                   {% if row_error %}
-        <div class="alert alert-danger alert-dismissible fade show mt-4 " role="alert" style="max-width:70%;margin:auto">
+        <div class="alert alert-danger alert-dismissible fade show mt-4 " role="alert" style="max-width:70%;margin:auto;overflow: hidden;word-wrap: break-word;">
           Row no. {{row_error}} in your imported csv didn't upload as it contain some errors.Please check
           <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
@@ -448,12 +448,14 @@
         {% endif %}
 
       <!-- <div class="col-sm-4 ml-1"> -->
-        <table class="mt-4 table table-hover table-bordered border-dark">
+<div class="text-center mt-5 text-primary lead fw-bold" style="display: none;" id="no_certificate">No Certificates to display</div>
+
+        <table id="table_certificate" data-certificate="{{get_data}}" class="mt-4 table table-hover table-bordered border-dark">
           <thead>
             <tr>
               <!-- <th scope="col">{{forloop.counter}}</th> -->
               <th scope="col">#</th>
-              <th scope="col">Domain</th>
+              <th scope="col">Certificate</th>
               <!-- <th scope="col">Vendor</th> -->
               <!-- <th scope="col">Email</th> -->
               <th scope="col">License</th>
@@ -632,6 +634,12 @@ else if (update_success=="added"){
 }
 //  removing update endpoint from url ends here
 
+// toggling display of table
+var data_table=document.getElementById("table_certificate").getAttribute("data-certificate");
+if(data_table.charAt(11)==']'){
+  document.getElementById("table_certificate").style.display='none'
+  document.getElementById("no_certificate").style.display='block'
+}
   </script>
   {% endblock %}
 
